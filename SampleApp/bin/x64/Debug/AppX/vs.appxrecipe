@@ -8,7 +8,7 @@
     <TargetOsDescription>Windows 10.0</TargetOsDescription>
     <SolutionConfiguration>Debug|x64</SolutionConfiguration>
     <PackageArchitecture>x64</PackageArchitecture>
-    <PackageIdentityName>65dd0e96-8b27-428b-b2ef-cf0428997cbe</PackageIdentityName>
+    <PackageIdentityName>01207dda-8f94-475a-8504-df5d7889c86a</PackageIdentityName>
     <PackageIdentityPublisher>CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C</PackageIdentityPublisher>
     <IntermediateOutputPath>C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\</IntermediateOutputPath>
     <RemoteDeploymentType>
@@ -19,24 +19,24 @@
     <DeployOptionalPackages>false</DeployOptionalPackages>
     <WindowsSdkPath>C:\Program Files %28x86%29\Windows Kits\10\</WindowsSdkPath>
     <LayoutDir>C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\AppX</LayoutDir>
-    <RegisteredManifestChecksum>4462F5D83D65BD5E532BF82CD6ED0B3D9B5F5FD9CC2083A0FE899D090CD0CFBA</RegisteredManifestChecksum>
-    <RegisteredPackageMoniker>57012MikeFrancis.TimeZonesConverter_1.1.3.0_x64__08pddan6qgb4e</RegisteredPackageMoniker>
-    <RegisteredUserModeAppID>57012MikeFrancis.TimeZonesConverter_08pddan6qgb4e!App</RegisteredUserModeAppID>
-    <RegisteredPackageID>57012MikeFrancis.TimeZonesConverter</RegisteredPackageID>
+    <RegisteredManifestChecksum>5DDD51C41A98240A90B1FE0BD331689337D9F5501604E0A1BE5EA750A1EFB845</RegisteredManifestChecksum>
+    <RegisteredPackageMoniker>57012MikeFrancis.TrialTest123_1.66.5.0_x64__08pddan6qgb4e</RegisteredPackageMoniker>
+    <RegisteredUserModeAppID>57012MikeFrancis.TrialTest123_08pddan6qgb4e!App</RegisteredUserModeAppID>
+    <RegisteredPackageID>57012MikeFrancis.TrialTest123</RegisteredPackageID>
     <RegisteredPackagePublisher>CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C</RegisteredPackagePublisher>
-    <RegisteredVersion>1.1.3.0</RegisteredVersion>
+    <RegisteredVersion>1.66.5.0</RegisteredVersion>
   </PropertyGroup>
   <ItemGroup>
     <AppXManifest Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\Core\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2020-10-23T21:47:47.778</Modified>
+      <Modified>2020-10-30T19:30:40.951</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\SampleApp.exe">
       <PackagePath>entrypoint\SampleApp.exe</PackagePath>
-      <Modified>2020-10-23T21:47:44.948</Modified>
+      <Modified>2020-10-30T19:30:39.155</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Microsoft SDKs\UWPNuGetPackages\runtime.win10-x64.microsoft.netcore.universalwindowsplatform\6.2.10\runtimes\win10-x64\lib\uap10.0.15138\System.Runtime.dll">
       <PackagePath>System.Runtime.dll</PackagePath>
@@ -48,7 +48,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\StoreHelper\bin\x64\Debug\MSAppStoreHelper.winmd">
       <PackagePath>MSAppStoreHelper.winmd</PackagePath>
-      <Modified>2020-10-23T20:54:54.771</Modified>
+      <Modified>2020-10-30T19:25:49.499</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Properties\Default.rd.xml">
       <PackagePath>Properties\Default.rd.xml</PackagePath>
@@ -90,15 +90,15 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\SampleApp.xr.xml">
       <PackagePath>SampleApp.xr.xml</PackagePath>
-      <Modified>2020-10-23T20:56:35.898</Modified>
+      <Modified>2020-10-30T18:49:01.855</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\App.xbf">
       <PackagePath>App.xbf</PackagePath>
-      <Modified>2020-10-23T21:47:44.716</Modified>
+      <Modified>2020-10-30T19:30:38.968</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\MainPage.xbf">
       <PackagePath>MainPage.xbf</PackagePath>
-      <Modified>2020-10-23T21:47:44.716</Modified>
+      <Modified>2020-10-30T19:30:38.969</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\10.0.19041.0\Windows.winmd">
       <PackagePath>WinMetadata\Windows.winmd</PackagePath>
@@ -106,11 +106,11 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\resources.pri">
       <PackagePath>resources.pri</PackagePath>
-      <Modified>2020-10-23T20:56:37.396</Modified>
+      <Modified>2020-10-30T18:09:43.725</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\Core\SampleApp.exe">
       <PackagePath>SampleApp.exe</PackagePath>
-      <Modified>2020-10-23T21:47:47.767</Modified>
+      <Modified>2020-10-30T19:30:40.944</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>

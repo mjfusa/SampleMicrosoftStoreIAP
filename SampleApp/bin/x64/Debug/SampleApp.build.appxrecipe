@@ -8,7 +8,7 @@
     <TargetOsDescription>Windows 10.0</TargetOsDescription>
     <SolutionConfiguration>Debug|x64</SolutionConfiguration>
     <PackageArchitecture>x64</PackageArchitecture>
-    <PackageIdentityName>65dd0e96-8b27-428b-b2ef-cf0428997cbe</PackageIdentityName>
+    <PackageIdentityName>01207dda-8f94-475a-8504-df5d7889c86a</PackageIdentityName>
     <PackageIdentityPublisher>CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C</PackageIdentityPublisher>
     <IntermediateOutputPath>C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\</IntermediateOutputPath>
     <RemoteDeploymentType></RemoteDeploymentType>

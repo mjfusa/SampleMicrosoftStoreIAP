@@ -6,15 +6,53 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Page_Loaded">
 
-    <StackPanel>
-        <Button Content="Click" Click="Button_Click"/>
-        <Button Content="Buy" Click="Button_Buy_Click"/>
-        <TextBox Width="800" x:Name="txtPurchaseToken"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!--<TextBlock Text="aPurchase Durable"/>-->
+        <!--<Button Grid.Column="1" Content="Purchase Durable" Click="Button_Click"/>-->
+        <TextBlock Text="Description" Grid.Column="0" Grid.Row="0" Margin="10"/>
+        <TextBlock Text="Action" Grid.Column="1" Grid.Row="0" Margin="10"/>
+        <TextBlock Text="Parameter" Grid.Column="2" Grid.Row="0" Margin="10"/>
+        <TextBlock Text="Result" Grid.Column="3" Grid.Row="0" Margin="10"/>
+
+
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="Purchase Durable" Margin="10"/>
+        <Button Grid.Column="1" Grid.Row="1" Content="Purchase Durable" Click="Button_Buy_Click" Margin="10"/>
+
+        <TextBlock Grid.Column="0" Grid.Row="2" Text="Get Store ID Purchase Token" Margin="10"/>
+        <Button Grid.Column="1" Grid.Row="2" Content="Get Store ID Purchase Token" Click="Button_Subs_Click" Margin="10"/>
+        <TextBox Grid.Column="2" Grid.Row="2" Width="300" x:Name="txtPurchaseToken" Margin="10" Text="purchase token from REST call" />
+        <TextBox Grid.Column="3" Grid.Row="2" Width="300" x:Name="txtMSIDPurchaseToken" Margin="10" Text="" />
+
+        <TextBlock Grid.Column="0" Grid.Row="3" Text="Get Store ID Collections Token" Margin="10"/>
+        <Button Grid.Column="1" Grid.Row="3" Content="Get Store ID Collections Token" Click="Button_GetStoreIdCollections_Click" Margin="10"/>
+        <TextBox Grid.Column="2" Grid.Row="3" Width="300" x:Name="txtCollectionsToken" Margin="10" Text="collections token from REST call" />
+        <TextBox Grid.Column="3" Grid.Row="3" Width="300" x:Name="txtMSIDCollectionsToken" Margin="10" Text="" />
+
+
+        <!--<TextBox Width="800" x:Name="txtPurchaseToken"/>
         <TextBox Width="800" x:Name="txtMSID"/>
         <Button Content="Get MS Store ID for purchases / subscriptions" Click="Button_Subs_Click"/>
         <TextBox Width="800" x:Name="txtRes"/>
         <TextBox Width="800" x:Name="txtHasLic"/>
-    </StackPanel>
+        <TextBox Width="800" x:Name="txtUser" />-->
+    </Grid>
 </Page>

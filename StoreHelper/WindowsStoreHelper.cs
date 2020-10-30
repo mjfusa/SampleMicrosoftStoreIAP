@@ -257,7 +257,19 @@ namespace MSAppStoreHelper
         private static async Task<string> getMSStorePurchaseToken(string purchaseToken)
         {
             
-            var res = await _storeContext.GetCustomerPurchaseIdAsync(purchaseToken, "abc");
+            var res = await _storeContext.GetCustomerPurchaseIdAsync(purchaseToken, "abcd");
+            return res;
+        }
+
+        public static IAsyncOperation<string> GetMSStoreCollectionsToken(string collectionsToken)
+        {
+            return getMSStoreCollectionsToken(collectionsToken).AsAsyncOperation();
+        }
+
+        private static async Task<string> getMSStoreCollectionsToken(string collectionsToken)
+        {
+
+            var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, "abc");
             return res;
         }
 

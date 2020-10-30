@@ -48,3 +48,5 @@ C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\ProjectArchitectures.txt
 C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\.winmd_cache\$Microsoft.UI.Xaml.Markup.winmd_637112858540000000.json
 C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\.winmd_cache\$MSAppStoreHelper.winmd_637390832947711989.json
 C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\SampleApp.csprojAssemblyReference.cache
+C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\.winmd_cache\$MSAppStoreHelper.winmd_637396804876288090.json
+C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\.winmd_cache\$MSAppStoreHelper.winmd_637396827494992558.json
