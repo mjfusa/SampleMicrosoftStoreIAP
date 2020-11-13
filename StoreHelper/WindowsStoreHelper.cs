@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Services.Store;
+using Windows.UI.Popups;
 
 namespace MSAppStoreHelper
 {
@@ -193,6 +194,7 @@ namespace MSAppStoreHelper
         }
 
         private IList<StoreProduct> UserSubscriptions = new List<StoreProduct>();
+        private static IReadOnlyList<StorePackageUpdate> res;
 
         public static IAsyncOperation<IList<StoreProduct>> GetPurchasedSubscriptionProductAsync()
         {
@@ -230,11 +232,11 @@ namespace MSAppStoreHelper
         }
 
 
-        public static IAsyncOperation<StorePurchaseResult> PurchaseDurable(string StoreId)
+        public static IAsyncOperation<string> PurchaseDurable(string StoreId)
         {
             return purchaseDurable(StoreId).AsAsyncOperation();
         }
-        private static async Task<StorePurchaseResult> purchaseDurable(string StoreId)
+        private static async Task<string> purchaseDurable(string StoreId)
         {
             if (_storeContext == null)
             {
@@ -246,8 +248,9 @@ namespace MSAppStoreHelper
             {
                 throw new Exception(result.ExtendedError.Message);
             }
-            return result;
+            return $"{result.Status}";
         }
+
 
         public static IAsyncOperation<string> GetMSStorePurchaseToken(string purchaseToken)
         {
@@ -269,10 +272,24 @@ namespace MSAppStoreHelper
         private static async Task<string> getMSStoreCollectionsToken(string collectionsToken)
         {
 
-            var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, "abc");
+            var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, " ");
             return res;
         }
+        public static IAsyncOperation<IReadOnlyList<StorePackageUpdate>> GetPackageUpdates()
+        {
+            return getPackageUpdates().AsAsyncOperation();
+        }
 
+        // Updates / Package Management
+        private static async Task<IReadOnlyList<StorePackageUpdate>> getPackageUpdates()
+        {
+            IReadOnlyList<StorePackageUpdate> res1 = await _storeContext.GetAppAndOptionalStorePackageUpdatesAsync();
+            return res1;
+        }
+
+
+
+        
 
     }
 
