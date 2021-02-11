@@ -29,6 +29,7 @@
     </RootType>
     <RootType FullName="Windows.UI.Xaml.Controls.Button">
       <RootProperty Name="Content" />
+      <RootProperty Name="Width" />
       <RootProperty Name="Margin" />
       <RootEvent Name="Click" />
     </RootType>

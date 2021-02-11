@@ -8,24 +8,24 @@
     <TargetOsDescription>Windows 10.0</TargetOsDescription>
     <SolutionConfiguration>Debug|x64</SolutionConfiguration>
     <PackageArchitecture>x64</PackageArchitecture>
-    <PackageIdentityName>01207dda-8f94-475a-8504-df5d7889c86a</PackageIdentityName>
+    <PackageIdentityName>f3bf5e78-c582-4629-89ec-c9312d53e10b</PackageIdentityName>
     <PackageIdentityPublisher>CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C</PackageIdentityPublisher>
-    <IntermediateOutputPath>C:\p\UWPStoreHelper\SampleApp\obj\x64\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\p\StoreH\UWPStoreHelper\SampleApp\obj\x64\Debug\</IntermediateOutputPath>
     <RemoteDeploymentType></RemoteDeploymentType>
     <PackageRegistrationPath></PackageRegistrationPath>
     <RemoveNonLayoutFiles>true</RemoveNonLayoutFiles>
     <DeployOptionalPackages>false</DeployOptionalPackages>
     <WindowsSdkPath>C:\Program Files %28x86%29\Windows Kits\10\</WindowsSdkPath>
-    <LayoutDir>C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\AppX</LayoutDir>
+    <LayoutDir>C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\AppX</LayoutDir>
   </PropertyGroup>
   <ItemGroup>
-    <AppXManifest Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\Core\AppxManifest.xml">
+    <AppXManifest Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\Core\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\SampleApp.exe">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\SampleApp.exe">
       <PackagePath>entrypoint\SampleApp.exe</PackagePath>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Microsoft SDKs\UWPNuGetPackages\runtime.win10-x64.microsoft.netcore.universalwindowsplatform\6.2.10\runtimes\win10-x64\lib\uap10.0.15138\System.Runtime.dll">
@@ -34,55 +34,55 @@
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\bin\10.0.19041.0\XamlCompiler\Microsoft.UI.Xaml.Markup.winmd">
       <PackagePath>Microsoft.UI.Xaml.Markup.winmd</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\StoreHelper\bin\x64\Debug\MSAppStoreHelper.winmd">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\StoreHelper\bin\x64\Debug\MSAppStoreHelper.winmd">
       <PackagePath>MSAppStoreHelper.winmd</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Properties\Default.rd.xml">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Properties\Default.rd.xml">
       <PackagePath>Properties\Default.rd.xml</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\LockScreenLogo.scale-200.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\LockScreenLogo.scale-200.png">
       <PackagePath>Assets\LockScreenLogo.scale-200.png</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\SplashScreen.scale-200.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\SplashScreen.scale-200.png">
       <PackagePath>Assets\SplashScreen.scale-200.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\Square150x150Logo.scale-200.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\Square150x150Logo.scale-200.png">
       <PackagePath>Assets\Square150x150Logo.scale-200.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\Square44x44Logo.scale-200.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\Square44x44Logo.scale-200.png">
       <PackagePath>Assets\Square44x44Logo.scale-200.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
       <PackagePath>Assets\Square44x44Logo.targetsize-24_altform-unplated.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\StoreLogo.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\StoreLogo.png">
       <PackagePath>Assets\StoreLogo.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\Assets\Wide310x150Logo.scale-200.png">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\Assets\Wide310x150Logo.scale-200.png">
       <PackagePath>Assets\Wide310x150Logo.scale-200.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\SampleApp.xr.xml">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\SampleApp.xr.xml">
       <PackagePath>SampleApp.xr.xml</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\App.xbf">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\App.xbf">
       <PackagePath>App.xbf</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\MainPage.xbf">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\MainPage.xbf">
       <PackagePath>MainPage.xbf</PackagePath>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Program Files %28x86%29\Windows Kits\10\UnionMetadata\10.0.19041.0\Windows.winmd">
       <PackagePath>WinMetadata\Windows.winmd</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\resources.pri">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\resources.pri">
       <PackagePath>resources.pri</PackagePath>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\p\UWPStoreHelper\SampleApp\bin\x64\Debug\Core\SampleApp.exe">
+    <AppxPackagedFile Include="C:\p\StoreH\UWPStoreHelper\SampleApp\bin\x64\Debug\Core\SampleApp.exe">
       <PackagePath>SampleApp.exe</PackagePath>
     </AppxPackagedFile>
   </ItemGroup>

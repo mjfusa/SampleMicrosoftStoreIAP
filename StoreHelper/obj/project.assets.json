@@ -3807,7 +3807,7 @@
       ]
     },
     "Microsoft.NETCore.UniversalWindowsPlatform/6.2.10": {
-      "sha512": "YfQmR0oyJ9wO3a6uB9yutc3Vpt4ouaZ5cfnjcVi5ONLpSCBNyUHgcF4X9sflb1gQiXl1jT6aU2+VAkvQIRiSGQ==",
+      "sha512": "ROxFw/6HrgkUQKna0NAPWfmnuHpp/5JFB+lvTG47ELXiYjYpBfEKCGXax8kh/KKzP6uLDn4M3zJUUXC6Bst1+Q==",
       "type": "package",
       "path": "microsoft.netcore.universalwindowsplatform/6.2.10",
       "files": [
@@ -8152,25 +8152,28 @@
   },
   "packageFolders": {
     "C:\\Users\\mikefra\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
     "C:\\Microsoft\\Xamarin\\NuGet\\": {},
     "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
+      "projectUniqueName": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
       "projectName": "MSAppStoreHelper",
-      "projectPath": "C:\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
+      "projectPath": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
       "packagesPath": "C:\\Users\\mikefra\\.nuget\\packages\\",
-      "outputPath": "C:\\p\\UWPStoreHelper\\StoreHelper\\obj\\",
+      "outputPath": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\obj\\",
       "projectStyle": "PackageReference",
       "skipContentFileWrite": true,
       "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
         "C:\\Microsoft\\Xamarin\\NuGet\\",
         "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
       ],
       "configFilePaths": [
         "C:\\Users\\mikefra\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
       ],

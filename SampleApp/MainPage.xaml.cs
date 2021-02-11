@@ -45,7 +45,7 @@ namespace SampleApp
 
         private void Button_Buy_Click(object sender, RoutedEventArgs e)
         {
-            var res = WindowsStoreHelper.PurchaseDurable("9PHFB37XTFPV");// "SUBSCRIPTION -NO-FREETRIAL");
+            var res = WindowsStoreHelper.Purchase("9NTP9N5P4GRV"); // Durable RemoveAds (Trial Test 123)
 
         }
 
@@ -87,6 +87,12 @@ namespace SampleApp
         {
             var res = await WindowsStoreHelper.GetMSStoreCollectionsToken(txtCollectionsToken.Text);
             txtMSIDCollectionsToken.Text = res;
+        }
+
+        private void Button_Buy_Consumable_Click(object sender, RoutedEventArgs e)
+        {
+            var res = WindowsStoreHelper.Purchase("9N1HSVGN8D4V"); // Consumable MyConsumable
+
         }
     }
 }

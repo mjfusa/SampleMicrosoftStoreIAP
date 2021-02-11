@@ -232,11 +232,11 @@ namespace MSAppStoreHelper
         }
 
 
-        public static IAsyncOperation<string> PurchaseDurable(string StoreId)
+        public static IAsyncOperation<string> Purchase(string StoreId)
         {
-            return purchaseDurable(StoreId).AsAsyncOperation();
+            return purchase(StoreId).AsAsyncOperation();
         }
-        private static async Task<string> purchaseDurable(string StoreId)
+        private static async Task<string> purchase(string StoreId)
         {
             if (_storeContext == null)
             {

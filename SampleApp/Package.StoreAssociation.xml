@@ -361,11 +361,11 @@
     <Language Code="zu-za" InMinimumRequirementSet="true" />
   </SupportedLocales>
   <ProductReservedInfo>
-    <MainPackageIdentityName>57012MikeFrancis.TrialTest123</MainPackageIdentityName>
+    <MainPackageIdentityName>57012MikeFrancis.TimeZonesConverter</MainPackageIdentityName>
     <ReservedNames>
-      <ReservedName>Trial Test 123</ReservedName>
-      <ReservedName>Essai 123</ReservedName>
-      <ReservedName>Trialo Testo 123</ReservedName>
+      <ReservedName>Convertisseur de fuseaux horaires</ReservedName>
+      <ReservedName>TimeZonesConverter</ReservedName>
+      <ReservedName>Time Zones Converter</ReservedName>
     </ReservedNames>
   </ProductReservedInfo>
   <AccountPackageIdentityNames>
@@ -374,7 +374,6 @@
     <MainPackageIdentityName>57012MikeFrancis.ClownysNightofTerror</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.testapp3test</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.ContosoAppBundle</MainPackageIdentityName>
-    <MainPackageIdentityName>57012MikeFrancis.TimeZonesConverter</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.cordovatest14</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.Electron-ExcelDataStreamerSample</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.foo123a</MainPackageIdentityName>
@@ -400,36 +399,9 @@
     <MainPackageIdentityName>57012MikeFrancis.test123xxzz</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.test811</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.TestApp1000</MainPackageIdentityName>
+    <MainPackageIdentityName>57012MikeFrancis.TrialTest123</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.WordswithFriendsbeta</MainPackageIdentityName>
     <MainPackageIdentityName>57012MikeFrancis.xxxxxxxxxxxxxxsdddddd</MainPackageIdentityName>
   </AccountPackageIdentityNames>
-  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9P2209BWF11T">
-    <BundleInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>X86</PackageArchitecture>
-        <PackageMaxArchitectureVersion>1.66.4.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>1.66.4.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>1.66.4.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>1.66.4.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>1.66.4.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-    </BundleInfo>
-  </PackageInfoList>
+  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9MZJNFFBGM33" />
 </StoreAssociation>

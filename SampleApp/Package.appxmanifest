@@ -7,14 +7,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="57012MikeFrancis.TrialTest123"
+    Name="57012MikeFrancis.TimeZonesConverter"
     Publisher="CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C"
-    Version="1.66.5.0" />
+    Version="0.0.1.0" />
 
-  <mp:PhoneIdentity PhoneProductId="01207dda-8f94-475a-8504-df5d7889c86a" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="f3bf5e78-c582-4629-89ec-c9312d53e10b" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Trial Test 123</DisplayName>
+    <DisplayName>Convertisseur de fuseaux horaires</DisplayName>
     <PublisherDisplayName>Mike Francis</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -32,7 +32,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="SampleApp.App">
       <uap:VisualElements
-        DisplayName="Trial Test 123"
+        DisplayName="Convertisseur de fuseaux horaires"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="SampleApp"

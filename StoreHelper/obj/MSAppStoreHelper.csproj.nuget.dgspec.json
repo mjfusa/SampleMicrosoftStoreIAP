@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "C:\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {}
+    "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {}
   },
   "projects": {
-    "C:\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {
+    "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
+        "projectUniqueName": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
         "projectName": "MSAppStoreHelper",
-        "projectPath": "C:\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
+        "projectPath": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
         "packagesPath": "C:\\Users\\mikefra\\.nuget\\packages\\",
-        "outputPath": "C:\\p\\UWPStoreHelper\\StoreHelper\\obj\\",
+        "outputPath": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
         "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
           "C:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
         ],
         "configFilePaths": [
           "C:\\Users\\mikefra\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
