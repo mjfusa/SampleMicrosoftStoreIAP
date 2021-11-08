@@ -1,1 +1,0 @@
-c:\p\My Notes for Windows\UWPHelper1\obj\Release\UWPHelper1.csprojResolveAssemblyReference.cache
