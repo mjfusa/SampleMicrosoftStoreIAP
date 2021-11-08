@@ -267,7 +267,6 @@ namespace MSAppStoreHelper
 
         private static async Task<string> getMSStoreCollectionsToken(string collectionsToken)
         {
-
             var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, " ");
             return res;
         }
@@ -289,7 +288,7 @@ namespace MSAppStoreHelper
             string result;
             switch (hResult) {
                 case 0x803f6107:
-                    result = "Error {hResult}. App must be published to the Store hidden - not to private audience. " +
+                    result = $"Error {hResult}. App must be published to the Store hidden - not to private audience. " +
                             "App must be installed on the development machine once to aquire license. It can then be uninstalled, and you can resume development.  See https://aka.ms/testmsiap";
                     break;
                 case 0x80072EE7:
