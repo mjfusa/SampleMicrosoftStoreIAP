@@ -1,22 +1,22 @@
 {
   "format": 1,
   "restore": {
-    "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {}
+    "C:\\p\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {}
   },
   "projects": {
-    "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {
+    "C:\\p\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
+        "projectUniqueName": "C:\\p\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
         "projectName": "MSAppStoreHelper",
-        "projectPath": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
+        "projectPath": "C:\\p\\p\\UWPStoreHelper\\StoreHelper\\MSAppStoreHelper.csproj",
         "packagesPath": "C:\\Users\\mikefra\\.nuget\\packages\\",
-        "outputPath": "C:\\p\\StoreH\\UWPStoreHelper\\StoreHelper\\obj\\",
+        "outputPath": "C:\\p\\p\\UWPStoreHelper\\StoreHelper\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
         ],
         "configFilePaths": [
@@ -26,21 +26,21 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "uap10.0.17763"
+          "uap10.0.19041"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\p\\x\\Sample-Reunion-CL-Projection\\SimpleMathProjection\\nuget": {},
           "http://www.nuget.org/api/v2/curated-feeds/microsoftdotnet/": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "uap10.0.17763": {
+          "uap10.0.19041": {
             "projectReferences": {}
           }
         }
       },
       "frameworks": {
-        "uap10.0.17763": {
+        "uap10.0.19041": {
           "dependencies": {
             "Microsoft.NETCore.UniversalWindowsPlatform": {
               "target": "Package",

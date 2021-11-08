@@ -1,21 +1,11 @@
-﻿using MSAppStoreHelper;
-using Windows.System.UserProfile;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using MSAppStoreHelper;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Collections.ObjectModel;
+using Windows.Services.Store;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Windows.System;
-using System.Security.Principal;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -26,27 +16,11 @@ namespace SampleApp
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        //public event PropertyChangedEventHandler PropertyChanged; 
         public MainPage()
         {
             this.InitializeComponent();
-        }
-
-        private async void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //var res2 = await WindowsStoreHelper.HasLicenseAsync();
-            //txtHasLic.Text = res2.ToString();
-
-            //var res = await WindowsStoreHelper.GetPurchasedSubscriptionProductAsync();
-            //var res1= await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync("9PHFB37XTFPV");
-
-            //txtRes.Text = res1.ToString();
-
-        }
-
-        private void Button_Buy_Click(object sender, RoutedEventArgs e)
-        {
-            var res = WindowsStoreHelper.Purchase("9NTP9N5P4GRV"); // Durable RemoveAds (Trial Test 123)
-
+            restAPIs.Visibility = Visibility.Collapsed;
         }
 
         private async void Button_Subs_Click(object sender, RoutedEventArgs e)
@@ -55,32 +29,53 @@ namespace SampleApp
             txtMSIDPurchaseToken.Text = res;
         }
 
-        private async void GetUserInfo()
-        {
-            var users = await User.FindAllAsync();
-            List<string> userProps = new List<string>() { "AccountName",
-            "DisplayName",
-            "DomainName",
-            "FirstName",
-            "GuestHost",
-            "LastName",
-            "PrincipalName",
-            "SessionInitiationProtocolUri",
-            };
+        public ObservableCollection<StoreProduct> Consumables = new ObservableCollection<StoreProduct>();
+        public ObservableCollection<StoreProduct> Durables = new ObservableCollection<StoreProduct>();
+        public ObservableCollection<StoreProduct> Subscriptions = new ObservableCollection<StoreProduct>();
 
-            foreach (var user in users)
+        public Status status = new Status();
+
+        private async void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
             {
-                var userResults = await user.GetPropertiesAsync(userProps);
+                var storeProductQueryResultDurables = await WindowsStoreHelper.GetDurableAddOns();
+                foreach (StoreProduct product in storeProductQueryResultDurables.Products.Values)
+                {
+                    // Get subscriptions and durables
+                    foreach (var s in product.Skus)
+                    {
+                        if (s.IsSubscription)
+                        {
+                            Subscriptions.Add(product);
+                            var res = await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.StoreId);
+                        }
+                        else
+                        {
+                            Durables.Add(product);
+                        }
+                    }
+                }
+                var storeProductQueryResultConsumables = await WindowsStoreHelper.GetConsumableAddOns();
+                foreach (StoreProduct product in storeProductQueryResultConsumables.Products.Values)
+                {
+                    Consumables.Add(product);
+                }
             }
-
-
-            var name = WindowsIdentity.GetCurrent().Name;
+            catch (Exception err)
+            {
+                ShowError(err.Message);
+            }
         }
-
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
+        private async void ShowError(string errorMsg)
         {
-            GetUserInfo();
+            var okCommand = new UICommand("OK", cmd => { return; });
+            MessageDialog md = new MessageDialog($"{errorMsg}");
+            md.Title = "An error occurred";
+            md.Options = MessageDialogOptions.None;
+            md.Commands.Add(okCommand);
+            await md.ShowAsync();
+
         }
 
         private async void Button_GetStoreIdCollections_Click(object sender, RoutedEventArgs e)
@@ -89,10 +84,34 @@ namespace SampleApp
             txtMSIDCollectionsToken.Text = res;
         }
 
-        private void Button_Buy_Consumable_Click(object sender, RoutedEventArgs e)
+        private async void DoPurchase_ItemClick(object sender, ItemClickEventArgs e)
         {
-            var res = WindowsStoreHelper.Purchase("9N1HSVGN8D4V"); // Consumable MyConsumable
+            StoreProduct sp = (StoreProduct)e.ClickedItem;
+
+            var noCommand = new UICommand("No", cmd => { return; });
+            var yesCommand = new UICommand("Yes", async cmd =>
+            {
+                var res = await WindowsStoreHelper.Purchase(sp.StoreId, sp.ProductKind=="UnmanagedConsumable"); 
+                status.Text = res;
+            });
+            MessageDialog md = new MessageDialog($"Purchase the {sp.ProductKind} {sp.StoreId}?");
+            md.Options = MessageDialogOptions.None;
+            md.Commands.Add(yesCommand);
+            md.Commands.Add(noCommand);
+            await md.ShowAsync();
 
         }
     }
+
+    public class Status : ObservableObject
+    {
+        private string _text;
+        public string Text
+        {
+            get => _text;
+            set => SetProperty(ref _text, value);
+        }
+
+    }
+
 }

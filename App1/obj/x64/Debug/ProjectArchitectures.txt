@@ -1,0 +1,1 @@
+C:\p\p\UWPStoreHelper\App1\App1.csproj;x64

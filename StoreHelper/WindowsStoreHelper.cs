@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Services.Store;
+using Windows.Storage;
 using Windows.UI.Popups;
 
 namespace MSAppStoreHelper
@@ -85,41 +86,21 @@ namespace MSAppStoreHelper
         }
         private static async Task<bool> checkIfUserHasSubscriptionAsync(string subscriptionId)
         {
+            StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
 
-
-            //StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
-
-            //// Check if the customer has the rights to the subscription.
-            //foreach (var addOnLicense in appLicense.AddOnLicenses)
-            //{
-            //    StoreLicense license = addOnLicense.Value;
-            //    if (license.SkuStoreId.StartsWith(subscriptionId))
-            //    {
-            //        if (license.IsActive)
-            //        {
-            //            // The expiration date is available in the license.ExpirationDate property.
-            //            return true;
-            //        }
-            //    }
-            //}
-
-            string[] productKinds = { "Durable" };
-            List<String> filterList = new List<string>(productKinds);
-            var res = await _storeContext.GetUserCollectionAsync(productKinds);
-            foreach (var s in res.Products)
+            // Check if the customer has the rights to the subscription.
+            foreach (var addOnLicense in appLicense.AddOnLicenses)
             {
-                var product = s.Value;
-                var uc = product.IsInUserCollection;
-                if (product.StoreId == subscriptionId)
-                    return true;
+                StoreLicense license = addOnLicense.Value;
+                if (license.SkuStoreId.StartsWith(subscriptionId))
+                {
+                    if (license.IsActive)
+                    {
+                        // The expiration date is available in the license.ExpirationDate property.
+                        return true;
+                    }
+                }
             }
-
-
-
-
-
-
-
             // The customer does not have a license to the subscription.
             return false;
         }
@@ -150,13 +131,9 @@ namespace MSAppStoreHelper
                 _durables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
             }
 
-            if (_storeAppLicense == null)
-                _storeAppLicense = await _storeContext.GetAppLicenseAsync();
-
-            var addOnLicenses = _storeAppLicense.AddOnLicenses; // Not workind use IsInUserCollection
-            foreach (KeyValuePair<string, StoreLicense> item in addOnLicenses)
+            if (_durables.ExtendedError != null)
             {
-                var t = item.Key;
+                throw new Exception (ReportError((uint)_durables.ExtendedError.HResult));
             }
 
             return _durables;
@@ -168,7 +145,7 @@ namespace MSAppStoreHelper
         }
         private static async Task<StoreProductQueryResult> getConsumableAddOns()
         {
-            string[] productKinds = { "Consumable" };
+            string[] productKinds = { "UnmanagedConsumable" };
             List<String> filterList = new List<string>(productKinds);
             if (_consumables == null)
             {
@@ -194,7 +171,6 @@ namespace MSAppStoreHelper
         }
 
         private IList<StoreProduct> UserSubscriptions = new List<StoreProduct>();
-        private static IReadOnlyList<StorePackageUpdate> res;
 
         public static IAsyncOperation<IList<StoreProduct>> GetPurchasedSubscriptionProductAsync()
         {
@@ -213,9 +189,7 @@ namespace MSAppStoreHelper
 
             if (result.ExtendedError != null)
             {
-                System.Diagnostics.Debug.WriteLine("Something went wrong while getting the add-ons. " +
-                    "ExtendedError:" + result.ExtendedError);
-                return null;
+                throw new Exception(ReportError((uint)result.ExtendedError.HResult));
             }
 
             // Look for the product that represents the subscription.
@@ -232,11 +206,11 @@ namespace MSAppStoreHelper
         }
 
 
-        public static IAsyncOperation<string> Purchase(string StoreId)
+        public static IAsyncOperation<string> Purchase(string StoreId, bool bConsumable)
         {
-            return purchase(StoreId).AsAsyncOperation();
+            return purchase(StoreId, bConsumable).AsAsyncOperation();
         }
-        private static async Task<string> purchase(string StoreId)
+        private static async Task<string> purchase(string StoreId, bool bConsumable)
         {
             if (_storeContext == null)
             {
@@ -246,8 +220,31 @@ namespace MSAppStoreHelper
             var result = await _storeContext.RequestPurchaseAsync(StoreId);
             if (result.ExtendedError != null)
             {
-                throw new Exception(result.ExtendedError.Message);
+                throw new Exception(ReportError((uint)result.ExtendedError.HResult));
             }
+
+            if (bConsumable)
+            {
+                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                Guid strTrackingId = Guid.NewGuid();
+                if (localSettings.Values.ContainsKey(StoreId))
+                {
+                    strTrackingId = (Guid)localSettings.Values[StoreId];
+                }
+                else
+                {
+                    localSettings.Values[key: StoreId] = strTrackingId;
+                }
+                var res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, strTrackingId);
+                if (res.ExtendedError != null)
+                {
+                    throw new Exception(res.ExtendedError.Message);
+                } else
+                {
+                    localSettings.Values.Remove(StoreId);
+                }
+            }
+
             return $"{result.Status}";
         }
 
@@ -259,7 +256,6 @@ namespace MSAppStoreHelper
 
         private static async Task<string> getMSStorePurchaseToken(string purchaseToken)
         {
-            
             var res = await _storeContext.GetCustomerPurchaseIdAsync(purchaseToken, "abcd");
             return res;
         }
@@ -288,9 +284,27 @@ namespace MSAppStoreHelper
         }
 
 
+        static string ReportError (System.UInt32 hResult)
+        {
+            string result;
+            switch (hResult) {
+                case 0x803f6107:
+                    result = "Error {hResult}. App must be published to the Store hidden - not to private audience. " +
+                            "App must be installed on the development machine once to aquire license. It can then be uninstalled, and you can resume development.  See https://aka.ms/testmsiap";
+                    break;
+                case 0x80072EE7:
+                    result = "Network error. Please check that you are connected to the internet.";
+                    break;
+                default:
+                    result = "Error code: " + hResult.ToString();
+                break;
 
+            }
+            return result;
+        }
         
 
     }
+
 
 }

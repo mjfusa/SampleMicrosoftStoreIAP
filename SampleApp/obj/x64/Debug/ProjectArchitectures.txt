@@ -1,2 +1,2 @@
-C:\p\StoreH\UWPStoreHelper\SampleApp\SampleApp.csproj;x64
-C:\p\StoreH\UWPStoreHelper\StoreHelper\MSAppStoreHelper.csproj;x64
+C:\p\p\UWPStoreHelper\SampleApp\SampleApp.csproj;x64
+C:\p\p\UWPStoreHelper\StoreHelper\MSAppStoreHelper.csproj;x64
