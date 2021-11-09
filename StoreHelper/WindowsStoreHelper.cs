@@ -206,11 +206,11 @@ namespace MSAppStoreHelper
         }
 
 
-        public static IAsyncOperation<string> Purchase(string StoreId, bool bConsumable)
+        public static IAsyncOperation<string> Purchase(string StoreId)
         {
-            return purchase(StoreId, bConsumable).AsAsyncOperation();
+            return purchase(StoreId).AsAsyncOperation();
         }
-        private static async Task<string> purchase(string StoreId, bool bConsumable)
+        private static async Task<string> purchase(string StoreId)
         {
             if (_storeContext == null)
             {
@@ -223,25 +223,44 @@ namespace MSAppStoreHelper
                 throw new Exception(ReportError((uint)result.ExtendedError.HResult));
             }
 
-            if (bConsumable)
+            
+            bool notFulfilled = false;
+            StoreProduct product =null;
+            if (_consumables.Products.ContainsKey(StoreId))
             {
-                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-                Guid strTrackingId = Guid.NewGuid();
-                if (localSettings.Values.ContainsKey(StoreId))
+                product = _consumables.Products[StoreId];
+                notFulfilled = product.IsInUserCollection;
+            } else 
+            {
+                if (_durables.Products.ContainsKey(StoreId))
                 {
-                    strTrackingId = (Guid)localSettings.Values[StoreId];
+                    product = _consumables.Products[StoreId];
                 }
-                else
+            }
+            Debug.Assert(product != null);
+            if ( (result.Status == StorePurchaseStatus.Succeeded) || notFulfilled==true)
+            {
+                if (product.ProductKind=="UnmanagedConsumable")
                 {
-                    localSettings.Values[key: StoreId] = strTrackingId;
-                }
-                var res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, strTrackingId);
-                if (res.ExtendedError != null)
-                {
-                    throw new Exception(res.ExtendedError.Message);
-                } else
-                {
-                    localSettings.Values.Remove(StoreId);
+                    ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                    Guid strTrackingId = Guid.NewGuid();
+                    if (localSettings.Values.ContainsKey(StoreId))
+                    {
+                        strTrackingId = (Guid)localSettings.Values[StoreId];
+                    }
+                    else
+                    {
+                        localSettings.Values[key: StoreId] = strTrackingId;
+                    }
+                    var res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, strTrackingId);
+                    if (res.ExtendedError != null)
+                    {
+                        throw new Exception(res.ExtendedError.Message);
+                    }
+                    else
+                    {
+                        localSettings.Values.Remove(StoreId);
+                    }
                 }
             }
 

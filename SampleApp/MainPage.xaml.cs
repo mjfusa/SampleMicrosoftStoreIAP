@@ -91,8 +91,14 @@ namespace SampleApp
             var noCommand = new UICommand("No", cmd => { return; });
             var yesCommand = new UICommand("Yes", async cmd =>
             {
-                var res = await WindowsStoreHelper.Purchase(sp.StoreId, sp.ProductKind=="UnmanagedConsumable"); 
-                status.Text = res;
+                try
+                {
+                    var res = await WindowsStoreHelper.Purchase(sp.StoreId);
+                    status.Text = res;
+                } catch (Exception ex)
+                {
+                    ShowError(ex.Message);
+                }
             });
             MessageDialog md = new MessageDialog($"Purchase the {sp.ProductKind} {sp.StoreId}?");
             md.Options = MessageDialogOptions.None;
