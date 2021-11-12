@@ -11,11 +11,6 @@
     Publisher="CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C"
     Version="1.66.5.0" />
 	
-	<!--<Identity
-	  Name="GOATGAMESCOMPANYLIMITED.KingsThroneGameofConquest"
-	  Publisher="CN=E02A8EB1-C3C3-4C82-9881-03735D1A8E4E"
-	  Version="1.66.5.0" />-->
-	
   <mp:PhoneIdentity PhoneProductId="b2fd40d4-7faa-4482-a4ef-310dddb74829" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>

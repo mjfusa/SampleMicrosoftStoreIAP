@@ -32,7 +32,7 @@ namespace MSAppStoreHelper
         private static StoreAppLicense _storeAppLicense = null;
         private static bool _isActive = false;
         private static bool _isTrial = false;
-        private static StoreProductQueryResult _durables = null;
+        private static IDictionary<string, StoreProduct> _durables = null;
         private static StoreProductQueryResult _unmanagedConsumables = null;
         private static StoreProductQueryResult _storeManagedConsumables = null;
         private static StoreProductQueryResult _allAddOns = null;
@@ -127,13 +127,13 @@ namespace MSAppStoreHelper
         {
             StoreProduct product = null;
 
-            if (!_durables.Products.ContainsKey(StoreId))
+            if (!_allAddOns.Products.ContainsKey(StoreId))
             {
                 product = CheckConsumableIfFulfilled(StoreId);
             }
             else
             {
-                product = _durables.Products[StoreId];
+                product = _allAddOns.Products[StoreId];
             }
 
             Debug.Assert(product != null);
@@ -170,28 +170,28 @@ namespace MSAppStoreHelper
             else
                 result = (res != null) ? $"Consumable status: {res.Status}" : result;
 
-            RefreshIAP();
+            //RefreshIAP();
 
             return $"{result}";
 
         }
 
-        public static IAsyncOperation<StoreProductQueryResult> GetDurableAddOns()
+        public static IAsyncOperation<IDictionary<string, StoreProduct>> GetDurableAddOns()
         {
             return getDurableAddOns().AsAsyncOperation();
         }
-        private static async Task<StoreProductQueryResult> getDurableAddOns()
+        private static async Task<IDictionary<string, StoreProduct>> getDurableAddOns()
         {
             string[] productKinds = { "Durable" };
-            List<String> filterList = new List<string>(productKinds);
-            if (_durables == null)
+            if (_allAddOns == null)
             {
-                _durables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+                _allAddOns = await GetAllAddOns();
             }
 
-            if (_durables.ExtendedError != null)
+            foreach (StoreProduct p in _allAddOns.Products.Values)
             {
-                throw new Exception (ReportError((uint)_durables.ExtendedError.HResult));
+                if (p.ProductKind == "Durable")
+                    _durables.Add(p.StoreId, p);
             }
 
             return _durables;
@@ -205,11 +205,7 @@ namespace MSAppStoreHelper
         {
             string[] productKinds = { "Consumable" };
             List<String> filterList = new List<string>(productKinds);
-            if (_storeManagedConsumables == null)
-            {
                 _storeManagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-            }
-
             return _storeManagedConsumables;
         }
 
@@ -222,10 +218,7 @@ namespace MSAppStoreHelper
         {
             string[] productKinds = { "UnmanagedConsumable" };
             List<String> filterList = new List<string>(productKinds);
-            if (_unmanagedConsumables == null)
-            {
-                _unmanagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-            }
+            _unmanagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
 
             return _unmanagedConsumables;
         }
@@ -298,17 +291,9 @@ namespace MSAppStoreHelper
                 throw new Exception(ReportError((uint)result.ExtendedError.HResult));
             }
 
-            RefreshIAP();
+            //RefreshIAP();
 
             return $"{result.Status}";
-        }
-
-        private static void RefreshIAP()
-        {
-            _ = GetDurableAddOns();
-            _ = GetUnmanagedConsumableAddOns();
-            _ = GetStoreManagedConsumableAddOns();
-
         }
 
         private static StoreProduct CheckConsumableIfFulfilled(string StoreId)
@@ -351,19 +336,6 @@ namespace MSAppStoreHelper
             var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, " ");
             return res;
         }
-        public static IAsyncOperation<IReadOnlyList<StorePackageUpdate>> GetPackageUpdates()
-        {
-            return getPackageUpdates().AsAsyncOperation();
-        }
-
-        // Updates / Package Management
-        private static async Task<IReadOnlyList<StorePackageUpdate>> getPackageUpdates()
-        {
-            IReadOnlyList<StorePackageUpdate> res1 = await _storeContext.GetAppAndOptionalStorePackageUpdatesAsync();
-            return res1;
-        }
-
-
         static string ReportError (System.UInt32 hResult)
         {
             string result;
