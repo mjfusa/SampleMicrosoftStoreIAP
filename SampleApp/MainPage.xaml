@@ -9,8 +9,8 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Loaded="Page_Loaded">
 
-    <StackPanel>
-        <Grid>
+    <RelativePanel x:Name="MainPanel" Margin="20">
+        <!--<Grid x:Name="IAPs" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -19,114 +19,137 @@
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Text="Durables" Margin="10"/>
-            <TextBlock Text="Consumables" Grid.Column="1" Margin="10"/>
-            <TextBlock Text="Subscriptions" Grid.Column="2" Margin="10"/>
+            </Grid.ColumnDefinitions>-->
 
-            <ListView Grid.Row="1" Grid.Column="0" 
+        <ListView Grid.Row="1" Grid.Column="0" 
+                      Header="Durables"
                       Background="AliceBlue" 
                       x:Name="lvDurables" 
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
-                      ItemsSource="{x:Bind Durables,Mode=OneWay}" >
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="store:StoreProduct">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="110"/>
-                                <ColumnDefinition Width="Auto" MinWidth="175"/>
-                                <ColumnDefinition Width="Auto" MinWidth="250"/>
-                                <ColumnDefinition Width="Auto" MinWidth="25"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind StoreId}"/>
-                            <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind Title}"/>
-                            <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
-                            <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                      ItemsSource="{x:Bind Durables,Mode=OneWay}"  Margin="0,0,0,10" >
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="store:StoreProduct">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="110"/>
+                            <ColumnDefinition Width="Auto" MinWidth="175"/>
+                            <ColumnDefinition Width="Auto" MinWidth="250"/>
+                            <ColumnDefinition Width="Auto" MinWidth="25"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind StoreId}"/>
+                        <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind Title}"/>
+                        <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
+                        <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
-            <ListView Grid.Row="1" Grid.Column="1" x:Name="lvConsumables" Background="AntiqueWhite"
+        <ListView Grid.Row="1" Grid.Column="1" RelativePanel.Below="lvDurables" x:Name="lvUnmanagedConsumables" Background="AntiqueWhite"
+                      Header="Developer Managed Consumables"
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
-                      ItemsSource="{x:Bind Consumables, Mode=OneWay}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="store:StoreProduct">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="110"/>
-                                <ColumnDefinition Width="Auto" MinWidth="175"/>
-                                <ColumnDefinition Width="Auto" MinWidth="250"/>
-                                <ColumnDefinition Width="Auto" MinWidth="25"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind StoreId}"/>
-                            <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind InAppOfferToken}"/>
-                            <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
-                            <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-            <ListView Grid.Row="1" Grid.Column="2" x:Name="lvSubscriptions" Background="Beige"
+                      ItemsSource="{x:Bind UnmanagedConsumables, Mode=OneWay}"  Margin="0,0,0,10">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="store:StoreProduct">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="110"/>
+                            <ColumnDefinition Width="Auto" MinWidth="175"/>
+                            <ColumnDefinition Width="Auto" MinWidth="250"/>
+                            <ColumnDefinition Width="Auto" MinWidth="25"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind StoreId}"/>
+                        <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind InAppOfferToken}"/>
+                        <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
+                        <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <ListView Grid.Row="1" Grid.Column="1" RelativePanel.Below="lvUnmanagedConsumables" x:Name="lvStoreConsumables" Background="AntiqueWhite"
+                      Header="Store Managed Consumables"
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
-                      ItemsSource="{x:Bind Subscriptions, Mode=OneWay}">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="store:StoreProduct">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="110"/>
-                                <ColumnDefinition Width="Auto" MinWidth="175"/>
-                                <ColumnDefinition Width="Auto" MinWidth="250"/>
-                                <ColumnDefinition Width="Auto" MinWidth="25"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind StoreId}"/>
-                            <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind Title}"/>
-                            <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
-                            <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                      ItemsSource="{x:Bind StoreManagedConsumables, Mode=OneWay}"  Margin="0,0,0,10">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="store:StoreProduct">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="110"/>
+                            <ColumnDefinition Width="Auto" MinWidth="175"/>
+                            <ColumnDefinition Width="Auto" MinWidth="250"/>
+                            <ColumnDefinition Width="Auto" MinWidth="25"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind StoreId}"/>
+                        <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind InAppOfferToken}"/>
+                        <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
+                        <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <ListView Grid.Row="1" Grid.Column="2" x:Name="lvSubscriptions" Background="Beige"
+                      RelativePanel.Below="{Binding ElementName=lvStoreConsumables}"
+                      Header="Subscriptions"
+                      ItemClick="DoPurchase_ItemClick"
+                      IsItemClickEnabled="True"
+                      ItemsSource="{x:Bind Subscriptions, Mode=OneWay}" Margin="0,0,0,10">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="store:StoreProduct">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="110"/>
+                            <ColumnDefinition Width="Auto" MinWidth="175"/>
+                            <ColumnDefinition Width="Auto" MinWidth="250"/>
+                            <ColumnDefinition Width="Auto" MinWidth="25"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{x:Bind StoreId}"/>
+                        <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind Title}"/>
+                        <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
+                        <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <!--</Grid>-->
+        <Grid Margin="20" x:Name="gridRestAPIs" RelativePanel.Below="lvSubscriptions">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Description" Grid.Column="0" Grid.Row="0" Margin="10"/>
+            <TextBlock Text="Action" Grid.Column="1" Grid.Row="0" Margin="10"/>
+            <TextBlock Text="Parameter" Grid.Column="2" Grid.Row="0" Margin="10"/>
+            <TextBlock Text="Result" Grid.Column="3" Grid.Row="0" Margin="10"/>
+
+            <TextBlock Grid.Column="0" Grid.Row="3" Text="Get Store ID Purchase Token" Margin="10"/>
+            <Button Grid.Column="1" Grid.Row="3" Content="Get Store ID Purchase Token" Click="Button_Subs_Click" Margin="10"/>
+            <TextBox Grid.Column="2" Grid.Row="3" Width="300" x:Name="txtPurchaseToken" Margin="10" Text="purchase token from REST call" />
+            <TextBox Grid.Column="3" Grid.Row="3" Width="300" x:Name="txtMSIDPurchaseToken" Margin="10" Text="" />
+
+            <TextBlock Grid.Column="0" Grid.Row="4" Text="Get Store ID Collections Token" Margin="10"/>
+            <Button Grid.Column="1" Grid.Row="4" Content="Get Store ID Collections Token" Click="Button_GetStoreIdCollections_Click" Margin="10"/>
+            <TextBox Grid.Column="2" Grid.Row="4" Width="300" x:Name="txtCollectionsToken" Margin="10" Text="collections token from REST call" />
+            <TextBox Grid.Column="3" Grid.Row="4" Width="300" x:Name="txtMSIDCollectionsToken" Margin="10" Text="" />
         </Grid>
-        <Grid Margin="20" x:Name="restAPIs">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Description" Grid.Column="0" Grid.Row="0" Margin="10"/>
-        <TextBlock Text="Action" Grid.Column="1" Grid.Row="0" Margin="10"/>
-        <TextBlock Text="Parameter" Grid.Column="2" Grid.Row="0" Margin="10"/>
-        <TextBlock Text="Result" Grid.Column="3" Grid.Row="0" Margin="10"/>
-
-        <TextBlock Grid.Column="0" Grid.Row="3" Text="Get Store ID Purchase Token" Margin="10"/>
-        <Button Grid.Column="1" Grid.Row="3" Content="Get Store ID Purchase Token" Click="Button_Subs_Click" Margin="10"/>
-        <TextBox Grid.Column="2" Grid.Row="3" Width="300" x:Name="txtPurchaseToken" Margin="10" Text="purchase token from REST call" />
-        <TextBox Grid.Column="3" Grid.Row="3" Width="300" x:Name="txtMSIDPurchaseToken" Margin="10" Text="" />
-
-        <TextBlock Grid.Column="0" Grid.Row="4" Text="Get Store ID Collections Token" Margin="10"/>
-        <Button Grid.Column="1" Grid.Row="4" Content="Get Store ID Collections Token" Click="Button_GetStoreIdCollections_Click" Margin="10"/>
-        <TextBox Grid.Column="2" Grid.Row="4" Width="300" x:Name="txtCollectionsToken" Margin="10" Text="collections token from REST call" />
-        <TextBox Grid.Column="3" Grid.Row="4" Width="300" x:Name="txtMSIDCollectionsToken" Margin="10" Text="" />
-    </Grid>
-     
-        <Grid Margin="20">
+        <Grid Margin="20" x:Name="Status" RelativePanel.Below="gridRestAPIs">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -134,5 +157,5 @@
             <TextBlock Text="Status" FontWeight="Bold"/>
             <TextBlock Grid.Row="1" x:Name="txtStatus" Text="{x:Bind status.Text, Mode=OneWay}"/>
         </Grid>
-    </StackPanel>
+    </RelativePanel>
 </Page>

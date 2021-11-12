@@ -33,7 +33,8 @@ namespace MSAppStoreHelper
         private static bool _isActive = false;
         private static bool _isTrial = false;
         private static StoreProductQueryResult _durables = null;
-        private static StoreProductQueryResult _consumables = null;
+        private static StoreProductQueryResult _unmanagedConsumables = null;
+        private static StoreProductQueryResult _storeManagedConsumables = null;
         private static StoreProductQueryResult _allAddOns = null;
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -118,6 +119,63 @@ namespace MSAppStoreHelper
             return _isTrial;
         }
 
+        public static IAsyncOperation<string> FulfillConsumable(string StoreId)
+        {
+            return fulfillConsumable(StoreId).AsAsyncOperation();
+        }
+        private static async Task<string> fulfillConsumable(string StoreId)
+        {
+            StoreProduct product = null;
+
+            if (!_durables.Products.ContainsKey(StoreId))
+            {
+                product = CheckConsumableIfFulfilled(StoreId);
+            }
+            else
+            {
+                product = _durables.Products[StoreId];
+            }
+
+            Debug.Assert(product != null);
+            StoreConsumableResult res = null;
+            if (product.IsInUserCollection)
+            {
+                if (product.ProductKind == "UnmanagedConsumable" || product.ProductKind == "Consumable")
+                {
+                    ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                    Guid strTrackingId = Guid.NewGuid();
+                    if (localSettings.Values.ContainsKey(StoreId))
+                    {
+                        strTrackingId = (Guid)localSettings.Values[StoreId];
+                    }
+                    else
+                    {
+                        localSettings.Values[key: StoreId] = strTrackingId;
+                    }
+                    res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, strTrackingId);
+                    if (res.ExtendedError != null)
+                    {
+                        throw new Exception(res.ExtendedError.Message);
+                    }
+                    else
+                    {
+                        localSettings.Values.Remove(StoreId);
+                    }
+                }
+            }
+
+            string result = "Fulfilment error";
+            if (product.ProductKind == "Consumable")
+                result = (res != null) ? $"Consumable Balance remaining {res.BalanceRemaining}" : result;
+            else
+                result = (res != null) ? $"Consumable status: {res.Status}" : result;
+
+            RefreshIAP();
+
+            return $"{result}";
+
+        }
+
         public static IAsyncOperation<StoreProductQueryResult> GetDurableAddOns()
         {
             return getDurableAddOns().AsAsyncOperation();
@@ -139,20 +197,37 @@ namespace MSAppStoreHelper
             return _durables;
 
         }
-        public static IAsyncOperation<StoreProductQueryResult> GetConsumableAddOns()
+        public static IAsyncOperation<StoreProductQueryResult> GetStoreManagedConsumableAddOns()
         {
-            return getConsumableAddOns().AsAsyncOperation();
+            return getStoreManagedConsumableAddOns().AsAsyncOperation();
         }
-        private static async Task<StoreProductQueryResult> getConsumableAddOns()
+        private static async Task<StoreProductQueryResult> getStoreManagedConsumableAddOns()
+        {
+            string[] productKinds = { "Consumable" };
+            List<String> filterList = new List<string>(productKinds);
+            if (_storeManagedConsumables == null)
+            {
+                _storeManagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+            }
+
+            return _storeManagedConsumables;
+        }
+
+
+        public static IAsyncOperation<StoreProductQueryResult> GetUnmanagedConsumableAddOns()
+        {
+            return getUnmanagedConsumableAddOns().AsAsyncOperation();
+        }
+        private static async Task<StoreProductQueryResult> getUnmanagedConsumableAddOns()
         {
             string[] productKinds = { "UnmanagedConsumable" };
             List<String> filterList = new List<string>(productKinds);
-            if (_consumables == null)
+            if (_unmanagedConsumables == null)
             {
-                _consumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+                _unmanagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
             }
 
-            return _consumables;
+            return _unmanagedConsumables;
         }
         public static IAsyncOperation<StoreProductQueryResult> GetAllAddOns()
         {
@@ -223,50 +298,37 @@ namespace MSAppStoreHelper
                 throw new Exception(ReportError((uint)result.ExtendedError.HResult));
             }
 
-            
-            bool notFulfilled = false;
-            StoreProduct product =null;
-            if (_consumables.Products.ContainsKey(StoreId))
-            {
-                product = _consumables.Products[StoreId];
-                notFulfilled = product.IsInUserCollection;
-            } else 
-            {
-                if (_durables.Products.ContainsKey(StoreId))
-                {
-                    product = _consumables.Products[StoreId];
-                }
-            }
-            Debug.Assert(product != null);
-            if ( (result.Status == StorePurchaseStatus.Succeeded) || notFulfilled==true)
-            {
-                if (product.ProductKind=="UnmanagedConsumable")
-                {
-                    ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-                    Guid strTrackingId = Guid.NewGuid();
-                    if (localSettings.Values.ContainsKey(StoreId))
-                    {
-                        strTrackingId = (Guid)localSettings.Values[StoreId];
-                    }
-                    else
-                    {
-                        localSettings.Values[key: StoreId] = strTrackingId;
-                    }
-                    var res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, strTrackingId);
-                    if (res.ExtendedError != null)
-                    {
-                        throw new Exception(res.ExtendedError.Message);
-                    }
-                    else
-                    {
-                        localSettings.Values.Remove(StoreId);
-                    }
-                }
-            }
+            RefreshIAP();
 
             return $"{result.Status}";
         }
 
+        private static void RefreshIAP()
+        {
+            _ = GetDurableAddOns();
+            _ = GetUnmanagedConsumableAddOns();
+            _ = GetStoreManagedConsumableAddOns();
+
+        }
+
+        private static StoreProduct CheckConsumableIfFulfilled(string StoreId)
+        {
+
+            StoreProduct product = null;
+            if (_unmanagedConsumables.Products.ContainsKey(StoreId))
+            {
+                product = _unmanagedConsumables.Products[StoreId];
+                return product;
+            }
+
+            if (_storeManagedConsumables.Products.ContainsKey(StoreId))
+            {
+                product = _storeManagedConsumables.Products[StoreId];
+                return product;
+            }
+            
+            return product;
+        }
 
         public static IAsyncOperation<string> GetMSStorePurchaseToken(string purchaseToken)
         {
