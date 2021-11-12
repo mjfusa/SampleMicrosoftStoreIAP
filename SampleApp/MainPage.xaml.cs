@@ -20,7 +20,7 @@ namespace SampleApp
         public MainPage()
         {
             this.InitializeComponent();
-            gridRestAPIs.Visibility = Visibility.Collapsed;
+            //gridRestAPIs.Visibility = Visibility.Collapsed;
         }
 
         private async void Button_Subs_Click(object sender, RoutedEventArgs e)
@@ -30,10 +30,9 @@ namespace SampleApp
         }
 
         public ObservableCollection<StoreProduct> UnmanagedConsumables = new ObservableCollection<StoreProduct>();
-        public ObservableCollection<StoreProduct> StoreManagedConsumables = new ObservableCollection<StoreProduct>();
+        public ObservableCollection<StoreProductEx> StoreManagedConsumables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProduct> Durables = new ObservableCollection<StoreProduct>();
         public ObservableCollection<StoreProduct> Subscriptions = new ObservableCollection<StoreProduct>();
-
         public Status status = new Status();
 
         
@@ -51,35 +50,38 @@ namespace SampleApp
 
             try
             {
-                var storeProductQueryResultDurables = await WindowsStoreHelper.GetDurableAddOns();
+                var storeProductQueryResultDurables = await WindowsStoreHelper.GetAllAddOns();
                 foreach (StoreProduct product in storeProductQueryResultDurables.Products.Values)
                 {
-                    // Get subscriptions and durables
-                    foreach (var s in product.Skus)
+                    switch(product.ProductKind)
                     {
-                        if (s.IsSubscription)
+                        case "Durable":
+                        foreach (var s in product.Skus)
                         {
-                            Subscriptions.Add(product);
-                            var res = await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.StoreId);
+                            if (s.IsSubscription)
+                            {
+                                Subscriptions.Add(product);
+                                var res = await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.StoreId);
+                            }
+                            else
+                            {
+                                Durables.Add(product);
+                            }
                         }
-                        else
-                        {
-                            Durables.Add(product);
-                        }
+                        break;
+                        case "Consumable": // Store managed consumables
+                            StoreProductEx spe = new StoreProductEx(product);
+                            var result = await StoreContext.GetDefault().GetConsumableBalanceRemainingAsync(product.StoreId);
+                            spe.storeManagedConsumableRemainingBalance = result.BalanceRemaining;
+                            StoreManagedConsumables.Add(spe);
+                            break;
+                        case "UnmanagedConsumable": // Developer managed consumables
+                            UnmanagedConsumables.Add(product);
+                        break;
+                        default:
+                            ShowError("Unknown IAP ProductType");
+                        break;
                     }
-                }
-                var storeProductQueryResultConsumables = await WindowsStoreHelper.GetUnmanagedConsumableAddOns();
-                foreach (StoreProduct product in storeProductQueryResultConsumables.Products.Values)
-                {
-                    UnmanagedConsumables.Add(product);
-                }
-                storeProductQueryResultConsumables = await WindowsStoreHelper.GetStoreManagedConsumableAddOns();
-                foreach (StoreProduct product in storeProductQueryResultConsumables.Products.Values)
-                {
-                    StoreManagedConsumables.Add(product);
-                    StoreProductEx spe = new StoreProductEx(product);
-                    var result = await StoreContext.GetDefault().GetConsumableBalanceRemainingAsync(product.StoreId);
-                    spe.storeManagedConsumableRemainingBalance = result.BalanceRemaining;
                 }
             }
             catch (Exception err)
@@ -105,13 +107,12 @@ namespace SampleApp
             txtMSIDCollectionsToken.Text = res;
         }
 
-        private async void FulFillConsumable(string StoreId)
+        private async void FulFillConsumable(StoreProductEx spex)
         {
             try
             {
-                var res = await WindowsStoreHelper.FulfillConsumable(StoreId);
+                var res = await WindowsStoreHelper.FulfillConsumable(((StoreProduct)spex).StoreId);
                 GetIAP();
-
                 status.Text = res;
             }
             catch (Exception ex)
@@ -120,31 +121,23 @@ namespace SampleApp
             }
         }
 
-        private void RefreshIAP()
-        {
-            UnmanagedConsumables.Clear();
-
-
-        }
-
         private async void DoPurchase_ItemClick(object sender, ItemClickEventArgs e)
         {
-            StoreProduct sp = (StoreProduct)e.ClickedItem;
-
-            var cancelCommand = new UICommand("Cancel", cmd => { return; });
+            StoreProduct sp = (StoreProductEx)e.ClickedItem;
+            StoreProductEx spex = (StoreProductEx)e.ClickedItem;
             UICommand fulFillCommand = null;
-            if ( (sp.ProductKind == "UnmanagedConsumable" || sp.ProductKind == "Consumable") && sp.IsInUserCollection)
+            UICommand spendCommand = new UICommand("Spend Consumable", cmd => {
+                SpendConsumable(sp.StoreId);
+            });
+            if (sp.ProductKind == "UnmanagedConsumable") {
+                fulFillCommand = new UICommand("Fulfill Developer managed Consumable", cmd => {
+                    FulFillConsumable(spex);
+                });
+            } else if (sp.ProductKind == "Consumable")
             {
-                if (sp.ProductKind == "UnmanagedConsumable") {
-                    fulFillCommand = new UICommand("Fulfill Developer managed Consumable", cmd => {
-                        FulFillConsumable(sp.StoreId);
-                    });
-                } else
-                {
-                    fulFillCommand = new UICommand("Fulfill Store managed Consumable", cmd => {
-                        FulFillConsumable(sp.StoreId);
-                    });
-                }
+                fulFillCommand = new UICommand("Fulfill Store managed Consumable", cmd => {
+                    FulFillConsumable(spex);
+                });
             }
             var purchaseCommand = new UICommand("Purchase", async cmd =>
             {
@@ -152,21 +145,41 @@ namespace SampleApp
                 {
                     var res = await WindowsStoreHelper.Purchase(sp.StoreId);
                     status.Text = res;
-                } catch (Exception ex)
+                    if (res.Contains("Succeeded")) { 
+                        GetIAP();
+                    } else
+                    {
+                        ShowError(res);
+                    }
+                }
+                catch (Exception ex)
                 {
                     ShowError(ex.Message);
                 }
             });
-            MessageDialog md = new MessageDialog($"Purchase or fulfill the {sp.ProductKind} {sp.StoreId}");
+            var cancelCommand = new UICommand("Cancel", cmd => { return; });
+
+            MessageDialog md = new MessageDialog($"Purchase the {sp.ProductKind} {sp.StoreId}", "Purchase, Fulfill, or Spend Consumable");
             md.Options = MessageDialogOptions.None;
             if ((sp.ProductKind == "UnmanagedConsumable" || sp.ProductKind == "Consumable") && sp.IsInUserCollection)
             {
                 md.Commands.Add(fulFillCommand);
+                //md.Commands.Add(spendCommand);
             }
-            md.Commands.Add(purchaseCommand);
             md.Commands.Add(cancelCommand);
-            await md.ShowAsync();
+            md.Commands.Add(purchaseCommand);
+            var res1 = await md.ShowAsync();
+            if (res1.Id==null)
+            {
+                return;
+            }
+                    
 
+        }
+
+        private void SpendConsumable(string storeId)
+        {
+       
         }
     }
 
