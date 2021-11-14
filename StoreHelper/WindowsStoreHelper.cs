@@ -32,8 +32,8 @@ namespace MSAppStoreHelper
         private static StoreAppLicense _storeAppLicense = null;
         private static bool _isActive = false;
         private static bool _isTrial = false;
-        private static IDictionary<string, StoreProduct> _durables = null;
-        private static StoreProductQueryResult _unmanagedConsumables = null;
+        //private static StoreProductQueryResult _durables = null;
+        private static IDictionary<string, StoreProductEx1> _unmanagedConsumables = null;
         private static StoreProductQueryResult _storeManagedConsumables = null;
         private static StoreProductQueryResult _allAddOns = null;
 
@@ -106,7 +106,16 @@ namespace MSAppStoreHelper
             return false;
         }
 
+        public static IAsyncOperation<uint> GetUnmangedConsumableBalanceRemainingAsync(string storeId)
+        {
+            return getUnmangedConsumableBalanceRemainingAsync(storeId).AsAsyncOperation();
+        }
+        private static async Task<uint> getUnmangedConsumableBalanceRemainingAsync(string storeId)
+        {
 
+
+            return (uint)0;
+        }
         public static IAsyncOperation<bool> IsTrialAsync()
         {
             return isTrialAsync().AsAsyncOperation();
@@ -129,7 +138,7 @@ namespace MSAppStoreHelper
 
             if (!_allAddOns.Products.ContainsKey(StoreId))
             {
-                product = CheckConsumableIfFulfilled(StoreId);
+                product = GetConsumableProduct(StoreId);
             }
             else
             {
@@ -175,28 +184,7 @@ namespace MSAppStoreHelper
             return $"{result}";
 
         }
-
-        public static IAsyncOperation<IDictionary<string, StoreProduct>> GetDurableAddOns()
-        {
-            return getDurableAddOns().AsAsyncOperation();
-        }
-        private static async Task<IDictionary<string, StoreProduct>> getDurableAddOns()
-        {
-            string[] productKinds = { "Durable" };
-            if (_allAddOns == null)
-            {
-                _allAddOns = await GetAllAddOns();
-            }
-
-            foreach (StoreProduct p in _allAddOns.Products.Values)
-            {
-                if (p.ProductKind == "Durable")
-                    _durables.Add(p.StoreId, p);
-            }
-
-            return _durables;
-
-        }
+   
         public static IAsyncOperation<StoreProductQueryResult> GetStoreManagedConsumableAddOns()
         {
             return getStoreManagedConsumableAddOns().AsAsyncOperation();
@@ -210,15 +198,26 @@ namespace MSAppStoreHelper
         }
 
 
-        public static IAsyncOperation<StoreProductQueryResult> GetUnmanagedConsumableAddOns()
+        public static IAsyncOperation<IDictionary<string, StoreProductEx1>> GetUnmanagedConsumableAddOns()
         {
             return getUnmanagedConsumableAddOns().AsAsyncOperation();
         }
-        private static async Task<StoreProductQueryResult> getUnmanagedConsumableAddOns()
+        private static async Task<IDictionary<string, StoreProductEx1>> getUnmanagedConsumableAddOns()
         {
-            string[] productKinds = { "UnmanagedConsumable" };
-            List<String> filterList = new List<string>(productKinds);
-            _unmanagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+            //string[] productKinds = { "UnmanagedConsumable" };
+            //List<String> filterList = new List<string>(productKinds);
+            //_unmanagedConsumables = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
+            if (_allAddOns.Products.Count == 0)
+            {
+                await GetAllAddOns();
+            }
+
+            foreach(var p in _allAddOns.Products.Values)
+            {
+                
+                _unmanagedConsumables.Add(p.StoreId, new StoreProductEx1(p));
+            }
 
             return _unmanagedConsumables;
         }
@@ -230,10 +229,7 @@ namespace MSAppStoreHelper
         {
             string[] productKinds = { "Consumable", "Durable", "UnmanagedConsumable" };
             List<String> filterList = new List<string>(productKinds);
-            if (_allAddOns == null)
-            {
-                _allAddOns = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-            }
+            _allAddOns = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
 
             return _allAddOns;
         }
@@ -291,18 +287,16 @@ namespace MSAppStoreHelper
                 throw new Exception(ReportError((uint)result.ExtendedError.HResult));
             }
 
-            //RefreshIAP();
-
             return $"{result.Status}";
         }
 
-        private static StoreProduct CheckConsumableIfFulfilled(string StoreId)
+        private static StoreProduct GetConsumableProduct(string StoreId)
         {
 
             StoreProduct product = null;
-            if (_unmanagedConsumables.Products.ContainsKey(StoreId))
+            if (_unmanagedConsumables.ContainsKey(StoreId))
             {
-                product = _unmanagedConsumables.Products[StoreId];
+                product = _unmanagedConsumables[StoreId]._storeProduct;
                 return product;
             }
 
@@ -358,5 +352,22 @@ namespace MSAppStoreHelper
 
     }
 
+    public sealed class StoreProductEx1
+    {
+        //public StoreProductEx1(StoreProductEx1 product)
+        //{
+        //    _storeProduct = product._storeProduct;
+        //}
+        public StoreProductEx1(StoreProduct product)
+        {
+            _storeProduct = product;
+        }
+        public StoreProduct _storeProduct { get; set; }
+        public uint storeManagedConsumableRemainingBalance { get; set; }
 
+        //public static implicit operator StoreProduct(StoreProductEx1 self)
+        //{
+        //    return self._storeProduct;
+        //}
+    }
 }

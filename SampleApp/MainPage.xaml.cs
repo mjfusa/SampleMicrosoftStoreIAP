@@ -6,6 +6,8 @@ using Windows.Services.Store;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -31,7 +33,7 @@ namespace SampleApp
 
         public ObservableCollection<StoreProduct> UnmanagedConsumables = new ObservableCollection<StoreProduct>();
         public ObservableCollection<StoreProductEx> StoreManagedConsumables = new ObservableCollection<StoreProductEx>();
-        public ObservableCollection<StoreProduct> Durables = new ObservableCollection<StoreProduct>();
+        public ObservableCollection<StoreProductEx> Durables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProduct> Subscriptions = new ObservableCollection<StoreProduct>();
         public Status status = new Status();
 
@@ -41,6 +43,7 @@ namespace SampleApp
             GetIAP();
         }
 
+     
         private async void GetIAP()
         {
             Durables.Clear(); 
@@ -60,12 +63,12 @@ namespace SampleApp
                         {
                             if (s.IsSubscription)
                             {
-                                Subscriptions.Add(product);
-                                var res = await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.StoreId);
+                                Subscriptions.Add(product); //TODO StoreProduct not accurable for active / non-active subscription
+                                var res1 = await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.StoreId);
                             }
                             else
                             {
-                                Durables.Add(product);
+                                Durables.Add(new StoreProductEx(product));
                             }
                         }
                         break;
@@ -76,7 +79,10 @@ namespace SampleApp
                             StoreManagedConsumables.Add(spe);
                             break;
                         case "UnmanagedConsumable": // Developer managed consumables
-                            UnmanagedConsumables.Add(product);
+                            StoreProductEx spuc = new StoreProductEx(product);
+                            var BalanceRemaining = await WindowsStoreHelper.GetUnmangedConsumableBalanceRemainingAsync(product.StoreId);
+                            spuc.storeManagedConsumableRemainingBalance = BalanceRemaining;
+                            UnmanagedConsumables.Add(spuc);
                         break;
                         default:
                             ShowError("Unknown IAP ProductType");
@@ -123,8 +129,8 @@ namespace SampleApp
 
         private async void DoPurchase_ItemClick(object sender, ItemClickEventArgs e)
         {
-            StoreProduct sp = (StoreProductEx)e.ClickedItem;
-            StoreProductEx spex = (StoreProductEx)e.ClickedItem;
+            StoreProduct sp = (StoreProduct)e.ClickedItem;
+            StoreProductEx spex = new StoreProductEx(sp);// e.ClickedItem;
             UICommand fulFillCommand = null;
             UICommand spendCommand = new UICommand("Spend Consumable", cmd => {
                 SpendConsumable(sp.StoreId);
@@ -206,6 +212,14 @@ namespace SampleApp
         }
         public StoreProduct _storeProduct { get; set; }
         public uint storeManagedConsumableRemainingBalance {get;set;}
+
+        public ImageSource GetImageUri()
+        {
+            var bmp = new BitmapImage();
+            bmp.UriSource = _storeProduct.Images[0].Uri;
+            return bmp;
+
+        }
         
         public static implicit operator StoreProduct(StoreProductEx self)
         {

@@ -21,18 +21,20 @@
                       RelativePanel.Below="tbAnchor"    
                       ItemsSource="{x:Bind Durables,Mode=OneWay}"  Margin="0,0,0,10" >
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="store:StoreProduct">
+                    <DataTemplate x:DataType="local:StoreProductEx">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="25"/>
                                 <ColumnDefinition Width="Auto" MinWidth="110"/>
                                 <ColumnDefinition Width="Auto" MinWidth="175"/>
                                 <ColumnDefinition Width="Auto" MinWidth="250"/>
                                 <ColumnDefinition Width="Auto" MinWidth="25"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind StoreId}"/>
-                            <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind Title}"/>
-                            <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind Description}"/>
-                            <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind IsInUserCollection}"/>
+                            <TextBlock Grid.Column="1" Margin="10,0,0,0" Text="{x:Bind _storeProduct.StoreId}"/>
+                            <TextBlock Grid.Column="2" Margin="10,0,0,0" Text="{x:Bind _storeProduct.Title}"/>
+                            <TextBlock Grid.Column="3" Margin="10,0,0,0" Text="{x:Bind _storeProduct.Description}"/>
+                            <TextBlock Grid.Column="4" Margin="10,0,0,0" Text="{x:Bind _storeProduct.IsInUserCollection}"/>
+                            <Image Grid.Column="0" Margin="10,0,0,0" Source="{x:Bind GetImageUri()}" Height="25" Width="25"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
