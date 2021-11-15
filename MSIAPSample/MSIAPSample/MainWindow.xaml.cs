@@ -1,48 +1,41 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using MSAppStoreHelper;
+﻿using Microsoft.Toolkit.Mvvm;
+using MSIAPHelper;
 using System;
 using System.Collections.ObjectModel;
 using Windows.Services.Store;
 using Windows.UI.Popups;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using WinRT.Interop;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace SampleApp
+namespace MSIAPSample
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainWindow : Window
     {
         //public event PropertyChangedEventHandler PropertyChanged; 
-        public MainPage()
+        public MainWindow()
         {
             this.InitializeComponent();
             //gridRestAPIs.Visibility = Visibility.Collapsed;
         }
 
-        private async void Button_Subs_Click(object sender, RoutedEventArgs e)
+    private async void Button_Subs_Click(object sender, RoutedEventArgs e)
         {
             var res = await WindowsStoreHelper.GetMSStorePurchaseToken(txtPurchaseToken.Text);
             txtMSIDPurchaseToken.Text = res;
         }
-
         public ObservableCollection<StoreProductEx> UnmanagedConsumables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProductEx> StoreManagedConsumables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProductEx> Durables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProductEx> Subscriptions = new ObservableCollection<StoreProductEx>();
         public Status status = new Status();
-
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            GetIAP();
-        }
-
+        private bool mainWindowActivated=false;
 
         private async void GetIAP()
         {
@@ -78,8 +71,8 @@ namespace SampleApp
                             StoreManagedConsumables.Add(product);
                             break;
                         case "UnmanagedConsumable": // Developer managed consumables
-                            var BalanceRemaining = await WindowsStoreHelper.GetUnmangedConsumableBalanceRemainingAsync(product.storeProduct.StoreId);
-                            product.storeManagedConsumableRemainingBalance = BalanceRemaining;
+                            //var BalanceRemaining = await WindowsStoreHelper.GetUnmangedConsumableBalanceRemainingAsync(product.storeProduct.StoreId);
+                            //product.UnmanagedUnitsRemaining = BalanceRemaining;
                             UnmanagedConsumables.Add(product);
                             break;
                         default:
@@ -98,6 +91,7 @@ namespace SampleApp
         {
             var okCommand = new UICommand("OK", cmd => { return; });
             MessageDialog md = new MessageDialog($"{errorMsg}");
+            InitializeWithWindow.Initialize(md, WindowNative.GetWindowHandle(this));
             md.Title = "An error occurred";
             md.Options = MessageDialogOptions.None;
             md.Commands.Add(okCommand);
@@ -174,10 +168,10 @@ namespace SampleApp
             if ((sp.storeProduct.ProductKind == "UnmanagedConsumable" || sp.storeProduct.ProductKind == "Consumable") && sp.storeProduct.IsInUserCollection)
             {
                 md.Commands.Add(fulFillCommand);
-                //md.Commands.Add(spendCommand);
             }
-            md.Commands.Add(cancelCommand);
             md.Commands.Add(purchaseCommand);
+            md.Commands.Add(cancelCommand);
+            InitializeWithWindow.Initialize(md, WindowNative.GetWindowHandle(this));
             var res1 = await md.ShowAsync();
             if (res1.Id == null)
             {
@@ -191,6 +185,17 @@ namespace SampleApp
         {
 
         }
+
+        private void Window_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            if (!mainWindowActivated)
+            {
+                WindowsStoreHelper.InitializeStoreContext();
+                GetIAP();
+                //var res = WindowsStoreHelper.GetUnmanagedConsumableAddOns();
+                mainWindowActivated = true;
+            }
+        }
     }
 
     public class Status : ObservableObject
@@ -203,5 +208,5 @@ namespace SampleApp
         }
 
     }
-        
+
 }
