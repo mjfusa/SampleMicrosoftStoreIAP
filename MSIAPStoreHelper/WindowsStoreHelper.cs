@@ -203,10 +203,6 @@ namespace MSIAPHelper
                     {
                         localSettings.Values.Remove(StoreId);
                     }
-                    if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
-                    {
-                        _allAddOns[StoreId].UnmanagedUnitsRemaining -= unitsToFulfill;
-                    }
                 }
             }
 
