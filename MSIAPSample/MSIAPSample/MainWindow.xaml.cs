@@ -105,11 +105,11 @@ namespace MSIAPSample
             txtMSIDCollectionsToken.Text = res;
         }
 
-        private async void FulFillConsumable(StoreProductEx spex)
+        private async void FulFillConsumable(StoreProductEx spex, uint unitsToSpend)
         {
             try
             {
-                var res = await WindowsStoreHelper.FulfillConsumable(spex.storeProduct.StoreId);
+                var res = await WindowsStoreHelper.FulfillConsumable(spex.storeProduct.StoreId, unitsToSpend);
                 GetIAP();
                 status.Text = res;
             }
@@ -123,22 +123,19 @@ namespace MSIAPSample
         {
             var sp = (StoreProductEx)e.ClickedItem;
             UICommand fulFillCommand = null;
-            UICommand spendCommand = new UICommand("Spend Consumable", cmd =>
+            if (sp.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
             {
-                SpendConsumable(sp.storeProduct.StoreId);
-            });
-            if (sp.storeProduct.ProductKind == "UnmanagedConsumable")
-            {
-                fulFillCommand = new UICommand("Fulfill Developer managed Consumable", cmd =>
+                fulFillCommand = new UICommand("Spend 100 Units", async cmd =>
                 {
-                    FulFillConsumable(sp);
+                    await WindowsStoreHelper.SpendConsumable(sp.storeProduct.StoreId, 100);
+                    GetIAP();
                 });
             }
-            else if (sp.storeProduct.ProductKind == "Consumable")
+            else if (sp.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
             {
-                fulFillCommand = new UICommand("Fulfill Store managed Consumable", cmd =>
+                fulFillCommand = new UICommand("Spend 100 Units", cmd =>
                 {
-                    FulFillConsumable(sp);
+                    FulFillConsumable(sp, 100);
                 });
             }
             var purchaseCommand = new UICommand("Purchase", async cmd =>
@@ -165,10 +162,23 @@ namespace MSIAPSample
 
             MessageDialog md = new MessageDialog($"Purchase the {sp.storeProduct.ProductKind} {sp.storeProduct.StoreId}", "Purchase, Fulfill, or Spend Consumable");
             md.Options = MessageDialogOptions.None;
-            if ((sp.storeProduct.ProductKind == "UnmanagedConsumable" || sp.storeProduct.ProductKind == "Consumable") && sp.storeProduct.IsInUserCollection)
+            if ((sp.storeProduct.ProductKind == "Consumable") && (sp.storeProduct.IsInUserCollection))
             {
-                md.Commands.Add(fulFillCommand);
+                if (sp.storeManagedConsumableRemainingBalance > 0)
+                {
+                    md.Commands.Add(fulFillCommand);
+                }
             }
+            if (sp.storeProduct.ProductKind == "UnmanagedConsumable" )
+            {
+                if (sp.UnmanagedUnitsRemaining > 0)
+                {
+                    md.Commands.Add(fulFillCommand);
+                }
+            }
+
+
+
             md.Commands.Add(purchaseCommand);
             md.Commands.Add(cancelCommand);
             InitializeWithWindow.Initialize(md, WindowNative.GetWindowHandle(this));
@@ -178,11 +188,6 @@ namespace MSIAPSample
                 return;
             }
 
-
-        }
-
-        private void SpendConsumable(string storeId)
-        {
 
         }
 
