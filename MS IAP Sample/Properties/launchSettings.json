@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MS IAP Sample (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MS IAP Sample (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

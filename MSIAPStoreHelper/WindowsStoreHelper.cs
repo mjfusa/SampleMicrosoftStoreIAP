@@ -195,6 +195,10 @@ namespace MSIAPHelper
                         unitsToFulfill = 1;
                     }
                     res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, unitsToFulfill, strTrackingId);
+                    if (res.Status!= StoreConsumableStatus.Succeeded)
+                    {
+                        throw new Exception(res.Status.ToString());
+                    }
                     if (res.ExtendedError != null)
                     {
                         throw new Exception(res.ExtendedError.Message);
@@ -240,12 +244,14 @@ namespace MSIAPHelper
         {
             return getAllAddOns().AsAsyncOperation();
         }
+        
         private static async Task<IDictionary<string,StoreProductEx>> getAllAddOns()
         {
             _allAddOns.Clear();
             string[] productKinds = { AddOnKind.StoreManagedConsumable, AddOnKind.Durable, AddOnKind.DeveloperManagedConsumable };
             List<String> filterList = new List<string>(productKinds);
             var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
             if (res.ExtendedError != null)
             {
                 throw new Exception(ReportError((uint)res.ExtendedError.HResult));
@@ -284,12 +290,13 @@ namespace MSIAPHelper
                     {
                         sp.UnmanagedUnitsRemaining = 0;
                     }
-                    //if (product.IsInUserCollection)
-                    //{
-                    //    var result = await _storeContext.ReportConsumableFulfillmentAsync(product.StoreId, 1, g);
-                    //}
-                
-                
+                    // force fulfill
+                    if (product.IsInUserCollection)
+                    {
+                        var result = await _storeContext.ReportConsumableFulfillmentAsync(product.StoreId, 1, g);
+                    }
+
+
                 }
                 _allAddOns.Add(product.StoreId, sp);
             }
@@ -362,7 +369,7 @@ namespace MSIAPHelper
                 product.UnmanagedUnitsRemaining += product.UnmanagedUnits;
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                 localSettings.Values["Units" + StoreId] = product.UnmanagedUnitsRemaining;
-                var res = await FulfillConsumable(StoreId);
+                await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, Guid.NewGuid());
             }
 
 
