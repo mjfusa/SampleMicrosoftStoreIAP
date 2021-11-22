@@ -56,8 +56,8 @@ namespace MSIAPSample
                             {
                                 if (s.IsSubscription)
                                 {
-                                    Subscriptions.Add(product); //TODO StoreProduct not accurable for active / non-active subscription
-                                    var res1 = await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.storeProduct.StoreId);
+                                    await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.storeProduct.StoreId);
+                                    Subscriptions.Add(product); 
                                 }
                                 else
                                 {
@@ -71,8 +71,6 @@ namespace MSIAPSample
                             StoreManagedConsumables.Add(product);
                             break;
                         case "UnmanagedConsumable": // Developer managed consumables
-                            //var BalanceRemaining = await WindowsStoreHelper.GetUnmangedConsumableBalanceRemainingAsync(product.storeProduct.StoreId);
-                            //product.UnmanagedUnitsRemaining = BalanceRemaining;
                             UnmanagedConsumables.Add(product);
                             break;
                         default:
@@ -123,24 +121,32 @@ namespace MSIAPSample
         {
             var sp = (StoreProductEx)e.ClickedItem;
             UICommand fulFillCommand = null;
-            if (sp.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
+            const uint unitsToSpend = 75;
+            try
             {
-                fulFillCommand = new UICommand("Spend 100 Units", async cmd =>
+                if (sp.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
                 {
-                    await WindowsStoreHelper.SpendConsumable(sp.storeProduct.StoreId, 100);
-                    GetIAP();
-                });
-            }
-            else if (sp.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
-            {
-                fulFillCommand = new UICommand("Spend 100 Units", cmd =>
+                    fulFillCommand = new UICommand($"Spend {unitsToSpend} Units", async cmd =>
+                    {
+                        try
+                        {
+                            await WindowsStoreHelper.SpendConsumable(sp.storeProduct.StoreId, unitsToSpend);
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowError(ex.Message);
+                        }
+                        GetIAP();
+                    });
+                }
+                else if (sp.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
                 {
-                    FulFillConsumable(sp, 100);
-                });
-            }
-            var purchaseCommand = new UICommand("Purchase", async cmd =>
-            {
-                try
+                    fulFillCommand = new UICommand($"Spend {unitsToSpend} Units", cmd =>
+                    {
+                        FulFillConsumable(sp, unitsToSpend);
+                    });
+                }
+                var purchaseCommand = new UICommand("Purchase", async cmd =>
                 {
                     var res = await WindowsStoreHelper.Purchase(sp.storeProduct.StoreId);
                     status.Text = res;
@@ -152,12 +158,7 @@ namespace MSIAPSample
                     {
                         ShowError(res);
                     }
-                }
-                catch (Exception ex)
-                {
-                    ShowError(ex.Message);
-                }
-            });
+                });
             var cancelCommand = new UICommand("Cancel", cmd => { return; });
 
             MessageDialog md = new MessageDialog($"Purchase the {sp.storeProduct.ProductKind} {sp.storeProduct.StoreId}", "Purchase, Fulfill, or Spend Consumable");
@@ -177,8 +178,6 @@ namespace MSIAPSample
                 }
             }
 
-
-
             md.Commands.Add(purchaseCommand);
             md.Commands.Add(cancelCommand);
             InitializeWithWindow.Initialize(md, WindowNative.GetWindowHandle(this));
@@ -186,6 +185,12 @@ namespace MSIAPSample
             if (res1.Id == null)
             {
                 return;
+            }
+
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex.Message);
             }
 
 
@@ -197,7 +202,6 @@ namespace MSIAPSample
             {
                 WindowsStoreHelper.InitializeStoreContext();
                 GetIAP();
-                //var res = WindowsStoreHelper.GetUnmanagedConsumableAddOns();
                 mainWindowActivated = true;
             }
         }
