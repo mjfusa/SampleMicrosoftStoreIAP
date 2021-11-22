@@ -90,9 +90,23 @@ namespace MSIAPHelper
                 StoreLicense license = addOnLicense.Value;
                 if (license.SkuStoreId.StartsWith(subscriptionId))
                 {
+                    _allAddOns[subscriptionId].SubscriptionIsInUserCollection = false;
                     if (license.IsActive)
                     {
                         // The expiration date is available in the license.ExpirationDate property.
+                        var baseTime = license.ExpirationDate;
+                        try
+                        {
+                            var tzLocal = TimeZoneInfo.Local;
+                            var timeLocal= TimeZoneInfo.ConvertTimeFromUtc(baseTime.DateTime, tzLocal);
+                            _allAddOns[subscriptionId].ExpirationDate = timeLocal.ToShortDateString() + " " + timeLocal.ToShortTimeString();
+                        }
+                        catch (TimeZoneNotFoundException)
+                        {
+                            _allAddOns[subscriptionId].ExpirationDate = baseTime.DateTime.ToShortDateString() + " " + baseTime.DateTime.ToShortTimeString();
+                            Console.WriteLine("Unable to create DateTimeOffset based on U.S. Central Standard Time.");
+                        }
+                        _allAddOns[subscriptionId].SubscriptionIsInUserCollection = true;
                         return true;
                     }
                 }
@@ -143,8 +157,9 @@ namespace MSIAPHelper
             var product = GetConsumableProduct(StoreId);
             if (_allAddOns[StoreId].UnmanagedUnitsRemaining < unitsToFulfill)
             {
-                uint newUnits = unitsToFulfill - _allAddOns[StoreId].UnmanagedUnitsRemaining;
-                unitsToFulfill = newUnits;
+                throw new Exception("Insufficient units");
+                //uint newUnits = unitsToFulfill - _allAddOns[StoreId].UnmanagedUnitsRemaining;
+                //unitsToFulfill = newUnits;
             } 
 
             if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
@@ -153,11 +168,7 @@ namespace MSIAPHelper
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                 localSettings.Values["Units" + product.StoreId]= _allAddOns[StoreId].UnmanagedUnitsRemaining;
             }
-            //if (unitsToFulfill == 0)
-            //{
-            //    await fulfillConsumable(StoreId,1);
-            //}
-
+       
             return _allAddOns[StoreId].UnmanagedUnitsRemaining.ToString();
         }
 
@@ -452,9 +463,6 @@ namespace MSIAPHelper
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                 if (localSettings.Values.ContainsKey("Units" + product.StoreId)) {
                     UnmanagedUnitsRemaining = (uint) localSettings.Values["Units" + product.StoreId];
-                } else
-                {
-
                 }
             }
         }
@@ -462,7 +470,9 @@ namespace MSIAPHelper
         public StoreProduct storeProduct { get { return _storeProduct; } set { _storeProduct = value; } }
         public uint storeManagedConsumableRemainingBalance { get; set; }
         public uint UnmanagedUnits { get; internal set; }
-        public uint UnmanagedUnitsRemaining { get;  set; }
+        public uint UnmanagedUnitsRemaining { get; set; }
+        public bool SubscriptionIsInUserCollection { get; set; }
+        public string ExpirationDate { get; internal set; }
 
         public ImageSource GetImageUri()
         {
