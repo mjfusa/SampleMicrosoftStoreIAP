@@ -7,6 +7,8 @@ using Windows.UI.Popups;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+    
+
 using WinRT.Interop;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -161,7 +163,7 @@ namespace MSIAPSample
                 });
             var cancelCommand = new UICommand("Cancel", cmd => { return; });
 
-            MessageDialog md = new MessageDialog($"Purchase the {sp.storeProduct.ProductKind} {sp.storeProduct.StoreId}", "Purchase, Fulfill, or Spend Consumable");
+            MessageDialog md = new MessageDialog($"Purchase the {sp.storeProduct.ProductKind} {sp.storeProduct.StoreId}", "Purchase or Spend Consumable units");
             md.Options = MessageDialogOptions.None;
             if ((sp.storeProduct.ProductKind == "Consumable") && (sp.storeProduct.IsInUserCollection))
             {
