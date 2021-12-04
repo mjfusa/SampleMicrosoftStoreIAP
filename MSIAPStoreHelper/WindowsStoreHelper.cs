@@ -1,8 +1,11 @@
 ﻿using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -237,7 +240,7 @@ namespace MSIAPHelper
             if (product.storeProduct.ProductKind== AddOnKind.DeveloperManagedConsumable)
             {
                     int i = 0;
-                    while (product.storeProduct.InAppOfferToken.Substring(i,1).All((char.IsNumber)) ) {
+                    while (Char.IsNumber(product.storeProduct.InAppOfferToken.Substring(i,1).As<Char>())  ) {
                         i++;
                     }
                     if (i == 0)
@@ -277,7 +280,7 @@ namespace MSIAPHelper
                 {
                     ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                     int i = 0;
-                    while (product.InAppOfferToken.Substring(i, 1).All((char.IsNumber)))
+                    while (char.IsNumber(product.InAppOfferToken.Substring(i, 1).As<char>()))
                     {
                         i++;
                     }
