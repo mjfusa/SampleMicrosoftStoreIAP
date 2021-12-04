@@ -15,5 +15,5 @@ Note:
 
 Run this app. You will see the Durables, Unmanaged Consumables,and the Subscriptions you have defined in Parnter Center. You can also purchase each if these items.
 
-See here for more information on configuring your game or app for testing in app purchases: https://aka.ms/testmsiap
+See here for more information on configuring your game or app for testing in app purchases:  https://aka.ms/testmsiap
 
