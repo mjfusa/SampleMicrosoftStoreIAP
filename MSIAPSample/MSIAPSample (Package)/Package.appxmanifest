@@ -8,12 +8,12 @@
 
   <Identity
     Name="57012MikeFrancis.TrialTest123"
-    Publisher="CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C"
-    Version="1.66.6.0" />
+    Publisher="CN=Michael Francis, O=Michael Francis, L=Auburn, S=Washington, C=US"
+    Version="1.66.10.0" />
 
   <Properties>
     <DisplayName>Trial Test 123</DisplayName>
-    <PublisherDisplayName>@MikeFrancis</PublisherDisplayName>
+    <PublisherDisplayName>Michael Francis</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
