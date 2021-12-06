@@ -204,3 +204,4 @@ FakesAssemblies/
 # Custom ignores
 gallery.xml
 project.lock.json
+/MSIAPSample/MSIAPSample (Package)/BundleArtifacts
