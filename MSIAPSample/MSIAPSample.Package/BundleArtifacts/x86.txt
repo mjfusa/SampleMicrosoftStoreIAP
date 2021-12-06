@@ -1,0 +1,2 @@
+MainPackage=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\bin\x86\Release\MSIAPSample (Package)_1.66.11.0_x86.msix
+SymbolPackage=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\obj\x86\Release\Symbols\MSIAPSample (Package)_1.66.11.0_x86.appxsym
