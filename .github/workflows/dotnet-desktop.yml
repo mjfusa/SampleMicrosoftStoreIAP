@@ -116,3 +116,30 @@ jobs:
       with:
         name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}\AppPackages
+        
+    - name: Windows Store Publish
+    # You may pin to the exact commit or the version.
+    # uses: isaacrlevin/windows-store-action@3ec3476a8da1d536355b536986bd7fc8f49c4945
+      uses: isaacrlevin/windows-store-action@1.0
+      with:
+        # Id of Partner Tenant
+        tenant-id: d6ff488b-0bf9-4193-aa92-c61a297ee6f4
+        # Id of Partner App Registration
+        client-id: aef082eb-f5a4-42b5-a856-6924f73da860
+        # Secret for Partner App Registration
+        client-secret: ${{ secrets.PARTNER_APP_REGISTRATION }}
+        # Id for App in Partner Center
+        app-id: 9P2209BWF11T
+        # Delete any pending submissions in Partner Center
+        delete-pending: 'true'
+        # Path to MISX Package
+        package-path: ${{ env.Wap_Project_Directory }}\AppPackages
+        # Skip polling the submission after committing it to Dev Center
+        skip-polling: 'true'
+        # Enable deletion of one or more old packages (sorted by version)
+        delete-packages: 'true'
+        # Specify number of latest packages (sorted by version) to be kept
+        packages-keep: 0
+        # Update Package Images
+        update-images: 'false'
+        
