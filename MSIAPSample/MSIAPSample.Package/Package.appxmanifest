@@ -9,7 +9,7 @@
   <Identity
     Name="57012MikeFrancis.TrialTest123"
     Publisher="CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C"
-    Version="1.66.11.0" />
+    Version="1.66.13.0" />
 
   <Properties>
     <DisplayName>Trial Test 123</DisplayName>
@@ -31,7 +31,7 @@
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="Trial Test 123"
-        Description="MSIAPSample (Package)"
+        Description="MSIAPSample.Package"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">

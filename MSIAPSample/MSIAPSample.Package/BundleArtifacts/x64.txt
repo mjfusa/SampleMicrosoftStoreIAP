@@ -1,0 +1,6 @@
+MainPackage=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\bin\x64\Release\MSIAPSample (Package)_1.66.11.0_x64.msix
+SymbolPackage=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\obj\x64\Release\Symbols\MSIAPSample (Package)_1.66.11.0_x64.appxsym
+ResourcePack=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\bin\x64\Release\MSIAPSample (Package)_1.66.11.0_scale-100.msix
+ResourcePack=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\bin\x64\Release\MSIAPSample (Package)_1.66.11.0_scale-125.msix
+ResourcePack=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\bin\x64\Release\MSIAPSample (Package)_1.66.11.0_scale-150.msix
+ResourcePack=C:\p\SampleMicrosoftStoreIAP\MSIAPSample\MSIAPSample (Package)\bin\x64\Release\MSIAPSample (Package)_1.66.11.0_scale-400.msix
