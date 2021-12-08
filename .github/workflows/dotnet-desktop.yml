@@ -159,8 +159,7 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: true
         # Path to MISX Package
-        #package-path: ${{ env.GITHUB_WORKSPACE }}/${{ env.Wap_Project_Directory }}/AppPackages/*.msixupload
-        package-path: D:\a\SampleMicrosoftStoreIAP\SampleMicrosoftStoreIAP/${{ env.Wap_Project_Directory }}/AppPackages/*.msixupload
+        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/**/*.msixupload
         # Skip polling the submission after committing it to Dev Center
         skip-polling: true
         # Enable deletion of one or more old packages (sorted by version)
