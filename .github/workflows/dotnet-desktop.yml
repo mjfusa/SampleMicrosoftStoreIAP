@@ -137,6 +137,20 @@ jobs:
     - name: Remove the pfx
       run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
 
+    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
+    #- name: Upload build artifacts
+    #  uses: actions/upload-artifact@v2
+    #  with:
+    #    name: MSIX Package
+    #    path: ${{ env.Wap_Project_Directory }}/AppPackages/
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: MSIX Package
+        path: ${{ env.Wap_Project_Directory }}/AppPackages/
+
+    # Publish to the Windows Store
     - name: Windows Store Publish
       uses: isaacrlevin/windows-store-action@1.0
       with:
@@ -161,11 +175,5 @@ jobs:
         # Update Package Images
         update-images: false
 
-        # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}/AppPackages
     
         
