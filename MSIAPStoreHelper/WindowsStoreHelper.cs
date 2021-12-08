@@ -32,8 +32,6 @@ namespace MSIAPHelper
         private static StoreAppLicense _storeAppLicense = null;
         private static bool _isActive = false;
         private static bool _isTrial = false;
-        //private static StoreProductQueryResult _durables = null;
-        //private static IDictionary<string, StoreProductEx> _unmanagedConsumables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _storeManagedConsumables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _allAddOns = new Dictionary<string, StoreProductEx>();
 
@@ -118,18 +116,18 @@ namespace MSIAPHelper
             return false;
         }
 
-        public static IAsyncOperation<uint> GetUnmangedConsumableBalanceRemainingAsync(string storeId)
+        public static IAsyncOperation<uint> GetTotalUnmangedConsumableBalanceRemainingAsync()
         {
-            return getUnmangedConsumableBalanceRemainingAsync(storeId).AsAsyncOperation();
+            return getTotalUnmangedConsumableBalanceRemainingAsync().AsAsyncOperation();
         }
-        private static async Task<uint> getUnmangedConsumableBalanceRemainingAsync(string storeId)
+        private static async Task<uint> getTotalUnmangedConsumableBalanceRemainingAsync()
         {
-            //if (_unmanagedConsumables.Count == 0) {
-            //        await GetUnmanagedConsumableAddOns();
-            //} 
-
-
-            return _allAddOns[storeId].UnmanagedUnitsRemaining;
+            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+            if (localSettings.Values.ContainsKey("TotalUnits"))
+            {
+                TotalUnmangedUnitsRemaining = (uint) localSettings.Values["TotalUnits"];
+            }
+            return TotalUnmangedUnitsRemaining;
         }
         public static IAsyncOperation<bool> IsTrialAsync()
         {
@@ -158,6 +156,19 @@ namespace MSIAPHelper
         private static async Task<string> spendConsumable(string StoreId, uint unitsToFulfill)
         {
             var product = GetConsumableProduct(StoreId);
+            if (TotalUnmangedUnitsRemaining < unitsToFulfill)
+            {
+                throw new Exception("Insufficient units");
+            }
+            if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
+            {
+
+                TotalUnmangedUnitsRemaining -= unitsToFulfill;
+                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                localSettings.Values["TotalUnits"] = TotalUnmangedUnitsRemaining;
+            }
+            return TotalUnmangedUnitsRemaining.ToString();
+#if FULFILL_WHEN_CONSUMED
             if (_allAddOns[StoreId].UnmanagedUnitsRemaining < unitsToFulfill)
             {
                 throw new Exception("Insufficient units");
@@ -173,6 +184,7 @@ namespace MSIAPHelper
             }
 
             return _allAddOns[StoreId].UnmanagedUnitsRemaining.ToString();
+#endif
         }
 
         public static IAsyncOperation<string> FulfillConsumable(string StoreId, uint unitsToFulFil = 1)
@@ -181,14 +193,14 @@ namespace MSIAPHelper
         }
         private static async Task<string> fulfillConsumable(string StoreId, uint unitsToSpend)
         {
-            StoreProduct product = null;
+            StoreProduct? product = null;
 
             Debug.Assert(_allAddOns[StoreId].storeProduct.ProductKind != AddOnKind.Durable);
 
             product = GetConsumableProduct(StoreId);
 
             Debug.Assert(product != null);
-            StoreConsumableResult res = null;
+            StoreConsumableResult? res = null;
             if (product.IsInUserCollection)
             {
                 if (product.ProductKind == AddOnKind.DeveloperManagedConsumable || product.ProductKind == AddOnKind.StoreManagedConsumable)
@@ -276,18 +288,17 @@ namespace MSIAPHelper
 
             foreach (var product in res.Products.Values)
             {
-                var g = Guid.NewGuid();
-                uint units = 0;
                 var sp = new StoreProductEx(product);
                 if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
                 {
                     ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                     int i = 0;
-                    int iResult = 0;
+                    int iResult;
                     while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
                     {
                         i++;
                     }
+                    uint units;
                     if (i == 0)
                     {
                         units = 100;
@@ -297,34 +308,24 @@ namespace MSIAPHelper
                         units = uint.Parse(product.InAppOfferToken.Substring(0, i));
                     }
 
-
                     sp.UnmanagedUnits = units;
-                    // Get from local store the current balance and set UnmanagedUnitsRemaining
-                    if (localSettings.Values.ContainsKey("Units" + product.StoreId))
-                    {
-                        sp.UnmanagedUnitsRemaining = (uint)localSettings.Values["Units" + product.StoreId];
-                    }
-                    else
-                    {
-                        sp.UnmanagedUnitsRemaining = 0;
-                    }
-                    // force fulfill
-                    if (product.IsInUserCollection)
-                    {
-                        var result = await _storeContext.ReportConsumableFulfillmentAsync(product.StoreId, 1, g);
-                    }
-
-
+                    TotalUnmangedUnitsRemaining = await GetTotalUnmangedConsumableBalanceRemainingAsync();
                 }
+                    //// force fulfill
+                    //var g = Guid.NewGuid();
+                    //if (product.IsInUserCollection)
+                    //{
+                    //    var result = await _storeContext.ReportConsumableFulfillmentAsync(product.StoreId, 1, g);
+                    //}
+                
                 _allAddOns.Add(product.StoreId, sp);
             }
-
-
             return _allAddOns;
         }
 
         private IList<StoreProduct> UserSubscriptions = new List<StoreProduct>();
 
+        public static uint TotalUnmangedUnitsRemaining { get; private set; }
 
         public static IAsyncOperation<IList<StoreProduct>> GetPurchasedSubscriptionProductAsync()
         {
@@ -385,31 +386,26 @@ namespace MSIAPHelper
             {
                 var product = _allAddOns[StoreId];
                 product.UnmanagedUnitsRemaining += product.UnmanagedUnits;
-                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                TotalUnmangedUnitsRemaining += product.UnmanagedUnitsRemaining;
+
+                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings; // todo save to cloud
                 localSettings.Values["Units" + StoreId] = product.UnmanagedUnitsRemaining;
+                localSettings.Values["TotalUnits"] = TotalUnmangedUnitsRemaining;
+
                 await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, Guid.NewGuid());
             }
-
-
 
             return $"{result.Status}";
         }
 
         private static StoreProduct GetConsumableProduct(string StoreId)
         {
-
-            StoreProduct product = null;
+            StoreProduct? product = null;
             if (_allAddOns.ContainsKey(StoreId))
             {
                 product = _allAddOns[StoreId].storeProduct;
                 return product;
             }
-
-            //if (_storeManagedConsumables.ContainsKey(StoreId))
-            //{
-            //    product = _storeManagedConsumables[StoreId].storeProduct;
-            //    return product;
-            //}
 
             return product;
         }
@@ -460,10 +456,6 @@ namespace MSIAPHelper
 
     public sealed class StoreProductEx
     {
-        //public StoreProductEx(StoreProductEx product)
-        //{
-        //    _storeProduct = product._storeProduct;
-        //}
         public StoreProductEx(StoreProduct product)
         {
             _storeProduct = product;
