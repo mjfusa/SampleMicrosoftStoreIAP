@@ -116,7 +116,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}
+        path: ${{ env.Wap_Project_Directory }}\AppPackages
         
     - name: Windows Store Publish
     # You may pin to the exact commit or the version.
@@ -134,7 +134,7 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: 'true'
         # Path to MISX Package
-        package-path: ${{ env.Wap_Project_Directory }}\AppPackages\*.msixupload
+        package-path: ${{ env.Wap_Project_Directory }}\AppPackages\*.msixbundle
         # Skip polling the submission after committing it to Dev Center
         skip-polling: 'true'
         # Enable deletion of one or more old packages (sorted by version)
