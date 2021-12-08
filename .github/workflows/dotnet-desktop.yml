@@ -76,7 +76,7 @@ jobs:
       Appx_Bundle: Always
       Appx_Bundle_Platforms: x86|x64
       Appx_Package_Build_Mode: StoreUpload
-      Appx_Signing: 'false'
+      Appx_Signing: false
 
     steps:
     - name: Checkout
@@ -158,15 +158,15 @@ jobs:
         # Id for App in Partner Center
         app-id: 9P2209BWF11T
         # Delete any pending submissions in Partner Center
-        delete-pending: 'true'
+        delete-pending: true
         # Path to MISX Package
-        package-path: \*.msixupload
+        package-path: ${{ env.Wap_Project_Directory }}\AppPackages\*.msixupload
         # Skip polling the submission after committing it to Dev Center
-        skip-polling: 'true'
+        skip-polling: true
         # Enable deletion of one or more old packages (sorted by version)
-        delete-packages: 'true'
+        delete-packages: true
         # Specify number of latest packages (sorted by version) to be kept
         packages-keep: 0
         # Update Package Images
-        update-images: 'false'
+        update-images: false
         
