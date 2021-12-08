@@ -134,7 +134,7 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: 'true'
         # Path to MISX Package
-        package-path: ${{ env.Wap_Project_Directory }}\AppPackages\*.msixbundle
+        package-path: ${{ env.Wap_Project_Directory }}\*.msixbundle
         # Skip polling the submission after committing it to Dev Center
         skip-polling: 'true'
         # Enable deletion of one or more old packages (sorted by version)
