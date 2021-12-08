@@ -62,7 +62,7 @@ jobs:
             DistributionUrl: ' '
             MsixPackageId: 57012MikeFrancis.TrialTest123
             MsixPublisherId: CN=76F03FF0-6FBC-4475-8F1A-617EA5713D5C
-            MsixPackageDisplayName: SampleMicrosoftStoreIAP
+            MsixPackageDisplayName: 'Trial Test 123'
 
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
