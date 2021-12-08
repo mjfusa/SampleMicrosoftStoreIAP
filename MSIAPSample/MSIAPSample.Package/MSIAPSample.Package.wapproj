@@ -36,7 +36,7 @@
     <EntryPointProjectUniqueName>..\MSIAPSample\MSIAPSample.csproj</EntryPointProjectUniqueName>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <PackageCertificateThumbprint>E2672C098C8B9333E7A4004CE3925E5C753E5A92</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>0532CD818BD9AF4F99029670C8E2C97229F51E7F</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>

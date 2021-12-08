@@ -24,7 +24,7 @@ namespace MSIAPSample
         public MainWindow()
         {
             this.InitializeComponent();
-            //gridRestAPIs.Visibility = Visibility.Collapsed;
+            
         }
 
     private async void Button_Subs_Click(object sender, RoutedEventArgs e)
@@ -36,6 +36,7 @@ namespace MSIAPSample
         public ObservableCollection<StoreProductEx> StoreManagedConsumables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProductEx> Durables = new ObservableCollection<StoreProductEx>();
         public ObservableCollection<StoreProductEx> Subscriptions = new ObservableCollection<StoreProductEx>();
+        public UnmanagedUnitsRemaining TotalUnmanagedUnits = new UnmanagedUnitsRemaining();
         public Status status = new Status();
         private bool mainWindowActivated=false;
 
@@ -80,6 +81,8 @@ namespace MSIAPSample
                             break;
                     }
                 }
+                var balResult = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
+                TotalUnmanagedUnits.Total = balResult.ToString();
             }
             catch (Exception err)
             {
@@ -218,6 +221,16 @@ namespace MSIAPSample
             set => SetProperty(ref _text, value);
         }
 
+    }
+
+    public class UnmanagedUnitsRemaining : ObservableObject
+    {
+        private string _total;
+        public string Total
+        {
+            get => _total;
+            set => SetProperty(ref _total, value);
+        }
     }
 
 }

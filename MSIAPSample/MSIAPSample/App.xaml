@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:media="using:CommunityToolkit.WinUI.UI.Media"
     xmlns:ani="using:CommunityToolkit.WinUI.UI.Animations"
-    xmlns:converters="using:System.ComponentModel"
+    xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters"
     xmlns:local="using:MSIAPSample">
     <Application.Resources>
         <ResourceDictionary>
@@ -29,6 +29,8 @@
                 <ani:OffsetDropShadowAnimation To="4" Delay="0:0:0.5" Duration="0:0:2" Target="{StaticResource CommonShadow}"/>
                 <ani:TranslationAnimation To="0" Duration="0:0:1"/>
             </ani:AnimationSet>
+            
+            <converters:StringFormatConverter x:Key="StringFormatConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
