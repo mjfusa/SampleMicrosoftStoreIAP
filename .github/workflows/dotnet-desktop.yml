@@ -144,35 +144,34 @@ jobs:
         name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}/AppPackages/
       
-    - name: List Files 
-      run: |
-          ls ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_1.66.18.0_x86_x64_bundle.msixupload
+    #- name: List Files 
+    #  run: |
+    #      ls ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_1.66.18.0_x86_x64_bundle.msixupload
     
     # Publish to the Windows Store
-    #- name: Windows Store Publish
-    #  uses: isaacrlevin/windows-store-action@1.0
-    #  with:
-    #    # Id of Partner Tenant
-    #    tenant-id: d6ff488b-0bf9-4193-aa92-c61a297ee6f4
-    #    # Id of Partner App Registration
-    #    client-id: aef082eb-f5a4-42b5-a856-6924f73da860
-    #    # Secret for Partner App Registration
-    #    client-secret: ${{ secrets.PARTNER_APP_REGISTRATION }}
-    #    # Id for App in Partner Center
-    #    app-id: 9P2209BWF11T
-    #    # Delete any pending submissions in Partner Center
-    #    delete-pending: true
-    #    # Path to MISX Package
-    #    #package-path: ./MSIAPSample/MSIAPSample.Package/AppPackages/MSIAPSample.Package_1.66.16.0_Test\MSIAPSample.Package_1.66.16.0_x86_x64_bundle.msixupload
-    #    package-path:  ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_1.66.17.0_Test/MSIAPSample.Package_1.66.17.0_x86_x64_bundle.msixupload
-    #    # Skip polling the submission after committing it to Dev Center
-    #    skip-polling: true
-    #    # Enable deletion of one or more old packages (sorted by version)
-    #    delete-packages: true
-    #    # Specify number of latest packages (sorted by version) to be kept
-    #    packages-keep: 0
-    #    # Update Package Images
-    #    update-images: false
+    - name: Windows Store Publish
+      uses: isaacrlevin/windows-store-action@1.0
+      with:
+        # Id of Partner Tenant
+        tenant-id: d6ff488b-0bf9-4193-aa92-c61a297ee6f4
+        # Id of Partner App Registration
+        client-id: aef082eb-f5a4-42b5-a856-6924f73da860
+        # Secret for Partner App Registration
+        client-secret: ${{ secrets.PARTNER_APP_REGISTRATION }}
+        # Id for App in Partner Center
+        app-id: 9P2209BWF11T
+        # Delete any pending submissions in Partner Center
+        delete-pending: true
+        # Path to MISX Package
+        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_1.66.19.0_x86_x64_bundle.msixupload
+        # Skip polling the submission after committing it to Dev Center
+        skip-polling: true
+        # Enable deletion of one or more old packages (sorted by version)
+        delete-packages: true
+        # Specify number of latest packages (sorted by version) to be kept
+        packages-keep: 0
+        # Update Package Images
+        update-images: false
 
     
         
