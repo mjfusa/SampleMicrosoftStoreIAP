@@ -143,7 +143,11 @@ jobs:
       with:
         name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}/AppPackages/
-    
+      
+    - name: List Files 
+      run: |
+          ls -a -R
+        
     # Publish to the Windows Store
     - name: Windows Store Publish
       uses: isaacrlevin/windows-store-action@1.0
