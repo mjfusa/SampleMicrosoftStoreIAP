@@ -163,7 +163,7 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: true
         # Path to MISX Package
-        package-path: ./MSIAPSample/MSIAPSample.Package/AppPackages/**/*.msixupload
+        package-path: ./MSIAPSample/MSIAPSample.Package/AppPackages/MSIAPSample.Package_1.66.16.0_Test\MSIAPSample.Package_1.66.16.0_x86_x64_bundle.msixupload
         # Skip polling the submission after committing it to Dev Center
         skip-polling: true
         # Enable deletion of one or more old packages (sorted by version)
