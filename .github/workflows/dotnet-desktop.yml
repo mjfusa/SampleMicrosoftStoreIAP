@@ -161,9 +161,9 @@ jobs:
         # Id for App in Partner Center
         app-id: 9P2209BWF11T
         # Delete any pending submissions in Partner Center
-        delete-pending: true
+        delete-pending: true 
         # Path to MISX Package
-        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_$env:NBGV_SimpleVersion.0_x86_x64_bundle.msixupload
+        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env:NBGV_SimpleVersion.0 }}_x86_x64_bundle.msixupload
         # Skip polling the submission after committing it to Dev Center
         skip-polling: true
         # Enable deletion of one or more old packages (sorted by version)
