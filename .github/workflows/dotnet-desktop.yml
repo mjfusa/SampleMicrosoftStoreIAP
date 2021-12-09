@@ -143,6 +143,7 @@ jobs:
       with:
         name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}/AppPackages/
+        app:  ${{ $env:NBGV_SimpleVersion.0 }}
       
     #- name: List Files 
     #  run: |
