@@ -146,7 +146,7 @@ jobs:
       
     - name: List Files 
       run: |
-          ls -a -R
+          ls -R
         
     # Publish to the Windows Store
     - name: Windows Store Publish
