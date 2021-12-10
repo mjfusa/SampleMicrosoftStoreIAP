@@ -144,10 +144,9 @@ jobs:
         name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}/AppPackages/
       
-    - name: List Files 
-      run: |
-          ls -R ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
-          #ls ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
+    #- name: List Files 
+    #  run: |
+    #      ls -R ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
     
     # Publish to the Windows Store
     - name: Windows Store Publish
@@ -165,14 +164,12 @@ jobs:
         delete-pending: true 
         # Path to MISX Package
         package-path: ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages
-        #package-path: ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
-        #package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_Test/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64.msixbundle
         # Skip polling the submission after committing it to Dev Center
-        skip-polling: true
+        skip-polling: false
         # Enable deletion of one or more old packages (sorted by version)
         delete-packages: true
         # Specify number of latest packages (sorted by version) to be kept
-        packages-keep: 0
+        packages-keep: 2
         # Update Package Images
         update-images: false
 
