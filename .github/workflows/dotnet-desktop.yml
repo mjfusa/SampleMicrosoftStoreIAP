@@ -143,11 +143,10 @@ jobs:
       with:
         name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}/AppPackages/
-        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_"$env:NBGV_SimpleVersion.0"_x86_x64_bundle.msixupload
       
-    #- name: List Files 
-    #  run: |
-    #      ls ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_{{ $env:NBGV_SimpleVersion.0 }}_x86_x64_bundle.msixupload
+    - name: List Files 
+      run: |
+          ls ${{ env.Wap_Project_Directory }}'/AppPackages/MSIAPSample.Package_'${{ env.NBGV_SimpleVersion.0 }}'_x86_x64_bundle.msixupload'
     
     # Publish to the Windows Store
     - name: Windows Store Publish
