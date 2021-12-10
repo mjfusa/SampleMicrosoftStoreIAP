@@ -150,7 +150,8 @@ jobs:
     
     # Publish to the Windows Store
     - name: Windows Store Publish
-      uses: isaacrlevin/windows-store-action@1.0
+      uses: isaacrlevin/windows-store-action@3ec3476a8da1d536355b536986bd7fc8f49c4945
+      #uses: isaacrlevin/windows-store-action@1.0
       with:
         # Id of Partner Tenant
         tenant-id: d6ff488b-0bf9-4193-aa92-c61a297ee6f4
