@@ -151,8 +151,7 @@ jobs:
     
     # Publish to the Windows Store
     - name: Windows Store Publish
-      #uses: isaacrlevin/windows-store-action@1.0
-      uses: isaacrlevin/windows-store-action@3595cf3b37a8941e6880cc82803c4af3a3bfccbd
+      uses: isaacrlevin/windows-store-action@1.0
       with:
         # Id of Partner Tenant
         tenant-id: d6ff488b-0bf9-4193-aa92-c61a297ee6f4
@@ -165,7 +164,8 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: true 
         # Path to MISX Package
-        package-path: ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
+        package-path: ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages
+        #package-path: ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
         #package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_Test/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64.msixbundle
         # Skip polling the submission after committing it to Dev Center
         skip-polling: true
