@@ -69,10 +69,10 @@ jobs:
 
     env:
       ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-      Solution_Name: SampleApp\SampleApp.sln                             # Replace with your solution name, i.e. MyWpfApp.sln.
+      Solution_Name: SampleApp/SampleApp.sln                             # Replace with your solution name, i.e. MyWpfApp.sln.
       #Test_Project_Path: your-test-project-path                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      Wap_Project_Directory: 'MSIAPSample\MSIAPSample.Package'    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Path: 'MSIAPSample\MSIAPSample.Package\MSIAPSample.Package.wapproj'                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      Wap_Project_Directory: 'MSIAPSample/MSIAPSample.Package'    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      Wap_Project_Path: 'MSIAPSample/MSIAPSample.Package/MSIAPSample.Package.wapproj'                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
       Appx_Bundle: Always
       Appx_Bundle_Platforms: x86|x64
       Appx_Package_Build_Mode: StoreUpload
@@ -146,7 +146,7 @@ jobs:
       
     - name: List Files 
       run: |
-          ls -R ${{ github.workspace }}
+          ls -R ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
           #ls ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
     
     # Publish to the Windows Store
@@ -164,8 +164,8 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: true 
         # Path to MISX Package
-        #package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
-        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_Test/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64.msixbundle
+        package-path: ${{ github.workspace }}/${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
+        #package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_Test/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64.msixbundle
         # Skip polling the submission after committing it to Dev Center
         skip-polling: true
         # Enable deletion of one or more old packages (sorted by version)
