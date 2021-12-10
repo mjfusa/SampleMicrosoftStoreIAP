@@ -150,8 +150,7 @@ jobs:
     
     # Publish to the Windows Store
     - name: Windows Store Publish
-      uses: isaacrlevin/windows-store-action@3ec3476a8da1d536355b536986bd7fc8f49c4945
-      #uses: isaacrlevin/windows-store-action@1.0
+      uses: isaacrlevin/windows-store-action@1.0
       with:
         # Id of Partner Tenant
         tenant-id: d6ff488b-0bf9-4193-aa92-c61a297ee6f4
@@ -164,7 +163,8 @@ jobs:
         # Delete any pending submissions in Partner Center
         delete-pending: true 
         # Path to MISX Package
-        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
+        #package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64_bundle.msixupload
+        package-path: ${{ env.Wap_Project_Directory }}/AppPackages/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_Test/MSIAPSample.Package_${{ env.NBGV_SimpleVersion }}.0_x86_x64.msixbundle
         # Skip polling the submission after committing it to Dev Center
         skip-polling: true
         # Enable deletion of one or more old packages (sorted by version)
