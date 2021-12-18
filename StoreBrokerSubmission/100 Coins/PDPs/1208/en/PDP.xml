@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InAppProductDescription language="en-us" xmlns="http://schemas.microsoft.com/appx/2012/InAppProductDescription" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="en" Release="1208">
+  <Title _locID="Iap_Title">
+    <!-- [required] -->
+    <!-- _locComment_text="{MaxLength=100} IAP Title" -->100 Coins</Title>
+  <Description _locID="Iap_Description">
+    <!-- [optional] -->
+    <!-- _locComment_text="{MaxLength=200} IAP Description" -->Accelerate your progress with this in-game currency. </Description>
+  <!-- [optional] Specifying an icon is optional. If provided, the icon must be a 300 x 300 png file. -->
+  <!-- <Icon Filename=""  /> -->
+</InAppProductDescription>
