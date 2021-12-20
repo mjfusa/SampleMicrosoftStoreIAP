@@ -1,0 +1,25 @@
+$cred = Get-Credential
+d6ff488b-0bf9-4193-aa92-c61a297ee6f4
+aef082eb-f5a4-42b5-a856-6924f73da860
+
+
+./ConvertFrom-ExistingIapSubmission.ps1 -IapId  9PB7576XVNLK -Release "1219" -PdpFileName "PDP.XML" -OutPath "C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\500 Coins"
+
+Set-StoreBrokerAuthentication -TenantId d6ff488b-0bf9-4193-aa92-c61a297ee6f4 -Credential $cred
+
+New-StoreBrokerInAppProductConfigFile -Path (Join-Path -Path ([System.Environment]::GetFolderPath('Desktop')) -ChildPath 'SBConfig.json') -IapId <IapId>
+
+New-InAppProductSubmissionPackage -ConfigPath 'C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\100 Coins\SBConfig.json'`
+ -outpath 'C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\100 Coins\Output\' -OutName out
+
+Update-InAppProductSubmission -IapId 9NDDQP8617CH -SubmissionDataPath '.\100 Coins\Output\out.json' -PackagePath '.\100 Coins\Output\out.zip' -AutoCommit -Force -UpdateListings
+
+Start-SubmissionMonitor -IapId 9MZQF01MTL32 -SubmissionId 1152921505694310004
+
+
+
+New-InAppProductSubmissionPackage -ConfigPath 'C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\1000 Coins\SBConfig.json'`
+-PDPRootPath 'C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\1000 Coins\PDPs'`
+-Release '1219' `
+-ImagesRootPath 'C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\1000 Coins\Images\'`
+-Outpath 'C:\p\samplemicrosoftstoreiap\StoreBrokerSubmission\1000 Coins\Submission\' -OutName Submission
