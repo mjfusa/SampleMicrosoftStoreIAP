@@ -42,13 +42,13 @@
         // File separator '\' must be escaped, i.e. '\\'
         // Ex: \\\\filehare\\Public\\AppPDPs\\MyApp
 
-        "PDPRootPath": "c:\\p\\samplemicrosoftstoreiap\\storebrokersubmission\\100 coins\\PDPs",
+        "PDPRootPath": "",
 
         // If your PDP files are being placed in a directory structure like this:
         //     <PDPRootPath>\<Release>\<lang-code>\...\PDP.xml
         // then specify the correct 'Release' here or at runtime.
 
-        "Release": "1208",
+        "Release": "",
 
         // Filenames that SHOULD be processed.
         // Wildcards are allowed, eg "InAppProductDescription*.xml".
@@ -60,7 +60,7 @@
         //     ]
 
         "PDPInclude": [
-        "PDP*.xml"
+            "PDP*.xml"
         ],
 
         // Filenames that SHOULD NOT be processed.
@@ -101,7 +101,7 @@
         // File separator '\' must be escaped, i.e. '\\'
         // Ex: \\\\fileshare\\Public\\Screenshots\\MyApp
 
-        "ImagesRootPath": "c:\\p\\samplemicrosoftstoreiap\\storebrokersubmission\\100 coins\\Images",
+        "ImagesRootPath": "",
 
         // Some apps may not localize all of their metadata media (images, trailers, etc..) across all languages.
         // By default, StoreBroker will look in the PDP langcode's subfolder within ImagesRootPath for that
@@ -110,7 +110,7 @@
         // the PDP language's media subfolder, StoreBroker will then look into the fallback language's media
         // subfolder for the exactly same-named image before failing.
 
-        "MediaFallbackLanguage": "en",
+        "MediaFallbackLanguage": "",
 
         // Full path to a directory where the Packaging Tool can write the .json submission request
         //     body and .zip package to upload.
@@ -134,7 +134,7 @@
         // to the wrong product when working at the commandline.
         //
         // Ex: "iapId": "0ABCDEF12345"
-        "iapId": "9NDDQP8617CH",
+        "iapId": "9MZQF01MTL32",
 
         /////////////////////////////////
         //                             //

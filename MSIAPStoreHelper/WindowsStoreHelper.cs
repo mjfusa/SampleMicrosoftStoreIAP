@@ -482,6 +482,7 @@ namespace MSIAPHelper
             {
                 return null;
             }
+            int cnt = _storeProduct.Images.Count;
             var bmp = new BitmapImage();
             bmp.UriSource = _storeProduct.Images[0].Uri;
             return bmp;

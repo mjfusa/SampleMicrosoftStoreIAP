@@ -1,0 +1,12 @@
+$headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+$headers.Add("Content-Type", "application/json")
+$headers.Add("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ik1yNS1BVWliZkJpaTdOZDFqQmViYXhib1hXMCIsImtpZCI6Ik1yNS1BVWliZkJpaTdOZDFqQmViYXhib1hXMCJ9.eyJhdWQiOiJodHRwczovL21hbmFnZS5kZXZjZW50ZXIubWljcm9zb2Z0LmNvbSIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2Q2ZmY0ODhiLTBiZjktNDE5My1hYTkyLWM2MWEyOTdlZTZmNC8iLCJpYXQiOjE2Mzk5NTIzNTcsIm5iZiI6MTYzOTk1MjM1NywiZXhwIjoxNjM5OTU2MjU3LCJhaW8iOiJFMlpnWUhnY1Bwcy80ZmlsU3dLeUNWcytUN2dmQ3dBPSIsImFwcGlkIjoiYWVmMDgyZWItZjVhNC00MmI1LWE4NTYtNjkyNGY3M2RhODYwIiwiYXBwaWRhY3IiOiIxIiwiaWRwIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvZDZmZjQ4OGItMGJmOS00MTkzLWFhOTItYzYxYTI5N2VlNmY0LyIsIm9pZCI6ImVmYzA2NjlkLWE1ODUtNDY5OC05MGUyLThlM2U4ZGFjY2Y3NiIsInJoIjoiMC5BUndBaTBqXzF2a0xrMEdxa3NZYUtYN205T3VDOEs2azliVkNxRlpwSlBjOXFHQWNBQUEuIiwic3ViIjoiZWZjMDY2OWQtYTU4NS00Njk4LTkwZTItOGUzZThkYWNjZjc2IiwidGlkIjoiZDZmZjQ4OGItMGJmOS00MTkzLWFhOTItYzYxYTI5N2VlNmY0IiwidXRpIjoieGRidWhXT1ZDVTZBcWlCd1J5c3NBQSIsInZlciI6IjEuMCJ9.MyktCmbwE62-GJ3g5YGSKR-3ovGke8lZgO2jbzwXFVFHrEluMFx4WArptPiB2vWMmehgMIZwo2K-y4eEKlsDtGKfhzLTOQJ24vQaozmG506_arDRISd1PtA7sbF4ULWP0bC2sA0MXyn_5AAP7MNlp1IJ9sz3ypu5jBfqaJogsvhutpHUj6QMz744AE0MNkf8bWQNXZLF16-uAxamUdqgLZmrbR-xpmAAB9yxJPsvxIq5UfpX2pVBwOZNnvbHZz_pi0BE323AXmjLZfOkRkCyDKLYNlRsd940D2srjQlofQtdOeUgcpYFOwqsHGbpWvBgZeXqqgaMkhk3u3svMGzRlw")
+
+$body = "{
+`n    `"applicationIds`": [  `"9P2209BWF11T`"  ],
+`n    `"productId`": `"500 Coins`",
+`n    `"productType`": `"Consumable`"
+`n}"
+
+$response = Invoke-RestMethod 'https://manage.devcenter.microsoft.com/v1.0/my/inappproducts' -Method 'POST' -Headers $headers -Body $body
+$response | ConvertTo-Json
