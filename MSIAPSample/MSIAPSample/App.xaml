@@ -32,5 +32,7 @@
             
             <converters:StringFormatConverter x:Key="StringFormatConverter" />
         </ResourceDictionary>
+
+
     </Application.Resources>
 </Application>

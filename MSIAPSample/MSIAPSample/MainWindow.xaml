@@ -11,7 +11,7 @@
     <ScrollViewer HorizontalAlignment="Center">
         <RelativePanel x:Name="MainPanel" Margin="20">
             <TextBlock Text="Durables, Consumables, Subscriptions" FontWeight="Bold" x:Name="tbAnchor" />
-            <ListView Grid.Row="1" Grid.Column="0" 
+            <GridView Grid.Row="1" Grid.Column="0" 
                       Header="Durables"
                       Background="AliceBlue" 
                       x:Name="lvDurables" 
@@ -19,7 +19,33 @@
                       IsItemClickEnabled="True"
                       RelativePanel.Below="tbAnchor"    
                       ItemsSource="{x:Bind Durables,Mode=OneWay}"  Margin="0,0,0,10" >
-                <ListView.ItemTemplate>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="msiaphelper:StoreProductEx">
+                        <Grid Width="Auto" Height="260"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" 
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <!--<RowDefinition Height="Auto"/>-->
+                            </Grid.RowDefinitions>
+                            <Image Grid.Row="0"  Source="{x:Bind GetImageUri()}" Height="100" MinWidth="180" Margin="10"  ui:Effects.Shadow="{StaticResource CommonShadow}"/>
+                            <TextBlock Grid.Row="1" FontFamily="Segoe UI" FontStyle="Italic" FontWeight="SemiBold"
+                                       HorizontalTextAlignment="Center" Text="{x:Bind storeProduct.Title}" Margin="30,0,30,0" MinWidth="180"/>
+                            <TextBlock Grid.Row="2" Margin="10,0,10,0" Height="55"  Text="{x:Bind storeProduct.Description}"  MaxWidth="240" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="3" Margin="10,0,10,0" Text="{x:Bind storeProduct.Price.FormattedPrice}"   HorizontalTextAlignment="Center" 
+                                       MaxWidth="240" />
+                            <!--<TextBlock Grid.Row="4" FontFamily="Segoe UI" 
+                                       HorizontalTextAlignment="Center" 
+                                       Text="{Binding storeManagedConsumableRemainingBalance,Converter={StaticResource StringFormatConverter},ConverterParameter='Gold remaining: {0}'}" Margin="20,10,20,10" MinWidth="180"/>-->
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+
+
+                <!--<ListView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="800">
                             <Grid.ColumnDefinitions>
@@ -36,18 +62,43 @@
                             <TextBlock Grid.Column="4" Margin="10,0,0,0" Text="{x:Bind storeProduct.IsInUserCollection}"/>
                         </Grid>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ListView.ItemTemplate>-->
+            </GridView>
             <StackPanel x:Name="tbTotalUnmanagedUnits" RelativePanel.Below="lvDurables" Orientation="Horizontal">
             <TextBlock Margin="10,0,0,0" Text="Total Coins: " />
             <TextBlock Margin="10,0,0,0" Text="{x:Bind TotalUnmanagedUnits.Total,Mode=OneWay}"/>
             </StackPanel>
-            <ListView Grid.Row="1" Grid.Column="1" RelativePanel.Below="tbTotalUnmanagedUnits" x:Name="lvUnmanagedConsumables" Background="AntiqueWhite"
+            
+            <GridView Grid.Row="1" Grid.Column="1" RelativePanel.Below="tbTotalUnmanagedUnits" x:Name="lvUnmanagedConsumables" Background="AntiqueWhite"
                       Header="Developer Managed Consumables"
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
                       ItemsSource="{x:Bind UnmanagedConsumables, Mode=OneWay}"  Margin="0,0,0,10">
-                <ListView.ItemTemplate>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="msiaphelper:StoreProductEx">
+                        <Grid Width="Auto" Height="260"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" 
+                              VerticalAlignment="Center"
+                              HorizontalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Image Grid.Row="0"  Source="{x:Bind GetImageUri()}" Height="100" MinWidth="180" Margin="10"  ui:Effects.Shadow="{StaticResource CommonShadow}"/>
+                            <TextBlock Grid.Row="1" FontFamily="Segoe UI" FontStyle="Italic" FontWeight="SemiBold"
+                                       HorizontalTextAlignment="Center" Text="{x:Bind storeProduct.InAppOfferToken}" Margin="30,0,30,0" MinWidth="180"/>
+                            <TextBlock Grid.Row="2" Margin="10,0,10,0" Height="55"  Text="{x:Bind storeProduct.Description}"  MaxWidth="240" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="3" Margin="10,0,10,0" Text="{x:Bind storeProduct.Price.FormattedPrice}"   HorizontalTextAlignment="Center" 
+                                       MaxWidth="240" />
+                            <TextBlock Grid.Row="4" FontFamily="Segoe UI" 
+                                       HorizontalTextAlignment="Center" 
+                                       Text="{Binding UnmanagedUnitsRemaining,Converter={StaticResource StringFormatConverter},ConverterParameter='Coins remaining: {0}'}" Margin="20,10,20,10" MinWidth="180"/>
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+                <!--<ListView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="800">
                             <Grid.ColumnDefinitions>
@@ -64,8 +115,9 @@
                             <TextBlock Grid.Column="4" Margin="10,0,0,0" Text="{x:Bind storeProduct.IsInUserCollection}"/>
                         </Grid>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ListView.ItemTemplate>-->
+            </GridView>
+
             <GridView Grid.Row="1" Grid.Column="1" RelativePanel.Below="lvUnmanagedConsumables" x:Name="lvStoreConsumables" Background="AliceBlue"
                       Header="Store Managed Consumables"
                       ItemClick="DoPurchase_ItemClick"
