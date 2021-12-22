@@ -3,10 +3,10 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="en" Release="1219">
   <Title _locID="Iap_Title">
     <!-- [required] -->
-    <!-- _locComment_text="{MaxLength=100} IAP Title" -->Mace</Title>
+    <!-- _locComment_text="{MaxLength=100} IAP Title" -->Sword</Title>
   <Description _locID="Iap_Description">
     <!-- [optional] -->
-    <!-- _locComment_text="{MaxLength=200} IAP Description" -->Defeat your enemy and protect your Kingdom with this mighty sword/</Description>
+    <!-- _locComment_text="{MaxLength=200} IAP Description" -->Defeat your enemy and protect your Kingdom with this mighty sword!</Description>
   <!-- [optional] Specifying an icon is optional. If provided, the icon must be a 300 x 300 png file. -->
   <Icon Filename="sword300x300.png"  />
 </InAppProductDescription>
