@@ -31,8 +31,12 @@
             </ani:AnimationSet>
             
             <converters:StringFormatConverter x:Key="StringFormatConverter" />
-        </ResourceDictionary>
 
+            <MenuFlyout x:Key="lvUnmanagedConsumablesMenuFlyout">
+                <MenuFlyoutItem Text="Show All Properties" x:Name="showAllProperties"/>
+            </MenuFlyout>
+
+        </ResourceDictionary>
 
     </Application.Resources>
 </Application>

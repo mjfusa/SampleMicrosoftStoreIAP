@@ -10,6 +10,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
     
 
 using WinRT.Interop;
+using Windows.ApplicationModel.Activation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -24,7 +25,7 @@ namespace MSIAPSample
         public MainWindow()
         {
             this.InitializeComponent();
-            
+            lvUnmanagedConsumablesMenuFlyout = Application.Current.Resources["lvUnmanagedConsumablesMenuFlyout"] as MenuFlyout;
         }
 
     private async void Button_Subs_Click(object sender, RoutedEventArgs e)
@@ -39,7 +40,7 @@ namespace MSIAPSample
         public UnmanagedUnitsRemaining TotalUnmanagedUnits = new UnmanagedUnitsRemaining();
         public Status status = new Status();
         private bool mainWindowActivated=false;
-
+        MenuFlyout lvUnmanagedConsumablesMenuFlyout;
         private async void GetIAP()
         {
             Durables.Clear();
@@ -83,6 +84,7 @@ namespace MSIAPSample
                 }
                 var balResult = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
                 TotalUnmanagedUnits.Total = balResult.ToString();
+                
             }
             catch (Exception err)
             {
@@ -208,7 +210,24 @@ namespace MSIAPSample
                 WindowsStoreHelper.InitializeStoreContext();
                 GetIAP();
                 mainWindowActivated = true;
+                foreach (var menuFlyoutItem in lvUnmanagedConsumablesMenuFlyout.Items)
+                {
+                    if (menuFlyoutItem.Name == "showAllProperties")
+                    {
+                        menuFlyoutItem.Tapped += menuFlyoutItem_Tapped;
+                    }
+                }
             }
+        }
+
+        private void menuFlyoutItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            // TODO show all properties of StoreProduct
+        }
+
+        private void lvUnmanagedConsumablesGrid_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+
         }
     }
 
@@ -226,11 +245,21 @@ namespace MSIAPSample
     public class UnmanagedUnitsRemaining : ObservableObject
     {
         private string _total;
+        private string _totalFormatted;
         public string Total
         {
             get => _total;
-            set => SetProperty(ref _total, value);
+            set {
+            _total= value;
+                TotalFormatted =value;    
+            }
         }
+        public string TotalFormatted
+        {
+            get => $"Coins balance: {_total}";
+            set => SetProperty(ref _totalFormatted, value);
+        }
+
     }
 
 }
