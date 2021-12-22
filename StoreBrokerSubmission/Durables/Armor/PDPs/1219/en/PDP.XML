@@ -3,7 +3,7 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="en" Release="1219">
   <Title _locID="Iap_Title">
     <!-- [required] -->
-    <!-- _locComment_text="{MaxLength=100} IAP Title" -->Mace</Title>
+    <!-- _locComment_text="{MaxLength=100} IAP Title" -->Armor</Title>
   <Description _locID="Iap_Description">
     <!-- [optional] -->
     <!-- _locComment_text="{MaxLength=200} IAP Description" -->Excellent damage resistance.</Description>
