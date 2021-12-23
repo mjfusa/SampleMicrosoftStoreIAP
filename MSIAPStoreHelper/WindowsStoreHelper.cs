@@ -311,17 +311,78 @@ namespace MSIAPHelper
                     sp.UnmanagedUnits = units;
                     TotalUnmangedUnitsRemaining = await GetTotalUnmangedConsumableBalanceRemainingAsync();
                 }
-                    //// force fulfill
-                    //var g = Guid.NewGuid();
-                    //if (product.IsInUserCollection)
-                    //{
-                    //    var result = await _storeContext.ReportConsumableFulfillmentAsync(product.StoreId, 1, g);
-                    //}
-                
+
                 _allAddOns.Add(product.StoreId, sp);
             }
             return _allAddOns;
         }
+
+
+
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedDurables()
+        {
+            return getPurchasedDurables().AsAsyncOperation();
+        }
+
+        private static async Task<IDictionary<string, StoreProductEx>> getPurchasedDurables()
+        {
+            IDictionary<string, StoreProductEx> result= new Dictionary<string, StoreProductEx>();
+            if (_allAddOns.Count == 0)
+            {
+                await GetAllAddOns();
+            }
+            foreach (var a in _allAddOns)
+            {
+                if ((a.Value.storeProduct.IsInUserCollection) && (a.Value.storeProduct.ProductKind == "Durable"))
+                {
+                    result.Add(a);
+                }
+            }
+            return result;
+        }
+
+        //private static async Task<IDictionary<string, StoreProductEx>> getAllAddOns()
+        //{
+        //    _allAddOns.Clear();
+        //    string[] productKinds = { AddOnKind.StoreManagedConsumable, AddOnKind.Durable, AddOnKind.DeveloperManagedConsumable };
+        //    List<String> filterList = new List<string>(productKinds);
+        //    var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
+        //    if (res.ExtendedError != null)
+        //    {
+        //        throw new Exception(ReportError((uint)res.ExtendedError.HResult));
+        //    }
+
+        //    foreach (var product in res.Products.Values)
+        //    {
+        //        var sp = new StoreProductEx(product);
+        //        if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
+        //        {
+        //            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+        //            int i = 0;
+        //            int iResult;
+        //            while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
+        //            {
+        //                i++;
+        //            }
+        //            uint units;
+        //            if (i == 0)
+        //            {
+        //                units = 100;
+        //            }
+        //            else
+        //            {
+        //                units = uint.Parse(product.InAppOfferToken.Substring(0, i));
+        //            }
+
+        //            sp.UnmanagedUnits = units;
+        //            TotalUnmangedUnitsRemaining = await GetTotalUnmangedConsumableBalanceRemainingAsync();
+        //        }
+               
+        //        _allAddOns.Add(product.StoreId, sp);
+        //    }
+        //    return _allAddOns;
+        //}
 
         private IList<StoreProduct> UserSubscriptions = new List<StoreProduct>();
 

@@ -10,6 +10,10 @@
 	  <UseWinUI>true</UseWinUI>
 	  <PublishReadyToRun>false</PublishReadyToRun> 
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="InventoryPage.xaml" />
+    <None Remove="NavigationWindow.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
@@ -22,5 +26,17 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MSIAPStoreHelper\MSIAPHelper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="InventoryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="NavigationWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

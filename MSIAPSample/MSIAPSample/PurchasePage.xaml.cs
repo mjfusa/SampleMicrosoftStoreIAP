@@ -10,7 +10,6 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
     
 
 using WinRT.Interop;
-using Windows.ApplicationModel.Activation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -19,13 +18,13 @@ namespace MSIAPSample
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : Window
+    public sealed partial class PurchasePage : Page
     {
         //public event PropertyChangedEventHandler PropertyChanged; 
-        public MainWindow()
+        public PurchasePage()
         {
             this.InitializeComponent();
-            lvUnmanagedConsumablesMenuFlyout = Application.Current.Resources["lvUnmanagedConsumablesMenuFlyout"] as MenuFlyout;
+            lvUnmanagedConsumablesMenuFlyout = Resources["lvUnmanagedConsumablesMenuFlyout"] as MenuFlyout;
         }
 
     private async void Button_Subs_Click(object sender, RoutedEventArgs e)
@@ -203,7 +202,7 @@ namespace MSIAPSample
 
         }
 
-        private void Window_Activated(object sender, WindowActivatedEventArgs args)
+        private void Page_Loaded(object sender, RoutedEventArgs args)
         {
             if (!mainWindowActivated)
             {
@@ -225,10 +224,6 @@ namespace MSIAPSample
             // TODO show all properties of StoreProduct
         }
 
-        private void lvUnmanagedConsumablesGrid_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
-        {
-
-        }
     }
 
     public class Status : ObservableObject

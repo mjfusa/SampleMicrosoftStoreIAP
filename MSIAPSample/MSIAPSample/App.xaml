@@ -32,9 +32,6 @@
             
             <converters:StringFormatConverter x:Key="StringFormatConverter" />
 
-            <MenuFlyout x:Key="lvUnmanagedConsumablesMenuFlyout">
-                <MenuFlyoutItem Text="Show All Properties" x:Name="showAllProperties"/>
-            </MenuFlyout>
 
         </ResourceDictionary>
 
