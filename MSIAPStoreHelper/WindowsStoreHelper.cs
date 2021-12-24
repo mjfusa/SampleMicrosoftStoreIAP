@@ -6,10 +6,12 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
 using WinRT;
+using System.Linq;
 
 namespace MSIAPHelper
 {
@@ -165,6 +167,7 @@ namespace MSIAPHelper
 
                 TotalUnmangedUnitsRemaining -= unitsToFulfill;
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                
                 localSettings.Values["TotalUnits"] = TotalUnmangedUnitsRemaining;
             }
             return TotalUnmangedUnitsRemaining.ToString();
@@ -246,6 +249,29 @@ namespace MSIAPHelper
 
         }
 
+        private static DeveloperManagedConsumable.Kind GetUnmanagedCosumableKind(StoreProduct p)
+        {
+            var product = _allAddOns[p.StoreId];
+            var result = "";
+            if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
+            {
+                var arr = product.storeProduct.InAppOfferToken.Split(' ');
+                if (arr.Count() > 1)
+                {
+                    result = arr[1];
+                }
+                switch (result.ToLower())
+                {
+                    case "coin":
+                        return DeveloperManagedConsumable.Kind.Coins;
+                    case "coins":
+                        return DeveloperManagedConsumable.Kind.Coins;
+                    default:
+                        return DeveloperManagedConsumable.Kind.Unknown;
+                }
+            }
+            return DeveloperManagedConsumable.Kind.Unknown;
+        }
         private static uint GetUnmanagedUnits(StoreProduct p)
         {
             var product = _allAddOns[p.StoreId];
@@ -309,6 +335,7 @@ namespace MSIAPHelper
                     }
 
                     sp.UnmanagedUnits = units;
+                    sp.
                     TotalUnmangedUnitsRemaining = await GetTotalUnmangedConsumableBalanceRemainingAsync();
                 }
 
@@ -340,51 +367,6 @@ namespace MSIAPHelper
             }
             return result;
         }
-
-        //private static async Task<IDictionary<string, StoreProductEx>> getAllAddOns()
-        //{
-        //    _allAddOns.Clear();
-        //    string[] productKinds = { AddOnKind.StoreManagedConsumable, AddOnKind.Durable, AddOnKind.DeveloperManagedConsumable };
-        //    List<String> filterList = new List<string>(productKinds);
-        //    var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-
-        //    if (res.ExtendedError != null)
-        //    {
-        //        throw new Exception(ReportError((uint)res.ExtendedError.HResult));
-        //    }
-
-        //    foreach (var product in res.Products.Values)
-        //    {
-        //        var sp = new StoreProductEx(product);
-        //        if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
-        //        {
-        //            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-        //            int i = 0;
-        //            int iResult;
-        //            while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
-        //            {
-        //                i++;
-        //            }
-        //            uint units;
-        //            if (i == 0)
-        //            {
-        //                units = 100;
-        //            }
-        //            else
-        //            {
-        //                units = uint.Parse(product.InAppOfferToken.Substring(0, i));
-        //            }
-
-        //            sp.UnmanagedUnits = units;
-        //            TotalUnmangedUnitsRemaining = await GetTotalUnmangedConsumableBalanceRemainingAsync();
-        //        }
-               
-        //        _allAddOns.Add(product.StoreId, sp);
-        //    }
-        //    return _allAddOns;
-        //}
-
-        private IList<StoreProduct> UserSubscriptions = new List<StoreProduct>();
 
         public static uint TotalUnmangedUnitsRemaining { get; private set; }
 
@@ -525,15 +507,14 @@ namespace MSIAPHelper
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                 if (localSettings.Values.ContainsKey("Units" + product.StoreId))
                 {
-                    UnmanagedUnitsRemaining = (uint)localSettings.Values["Units" + product.StoreId];
+                    dMC = (DeveloperManagedConsumable)localSettings.Values["Units" + product.StoreId];
                 }
             }
         }
+        private DeveloperManagedConsumable dMC;
         private StoreProduct _storeProduct { get; set; }
         public StoreProduct storeProduct { get { return _storeProduct; } set { _storeProduct = value; } }
         public uint storeManagedConsumableRemainingBalance { get; set; }
-        public uint UnmanagedUnits { get; internal set; }
-        public uint UnmanagedUnitsRemaining { get; set; }
         public bool SubscriptionIsInUserCollection { get; set; }
         public string ExpirationDate { get; internal set; }
 
@@ -558,5 +539,27 @@ namespace MSIAPHelper
         public const string Durable = "Durable";
         public const string StoreManagedConsumable = "Consumable";
         public const string DeveloperManagedConsumable = "UnmanagedConsumable";
+    }
+
+    public class DeveloperManagedConsumable
+    {
+        public enum Kind { Coins, Unknown };
+        public uint Balance { set; get; }
+        public uint UnmanagedUnits { get; internal set; }
+        public uint UnmanagedUnitsRemaining { get; set; }
+
+    }
+
+    public static partial class Extensions
+    {
+        /// <summary>
+        ///     A string extension method that query if '@this' is Alpha.
+        /// </summary>
+        /// <param name="this">The @this to act on.</param>
+        /// <returns>true if Alpha, false if not.</returns>
+        public static bool IsAlpha(this string @this)
+        {
+            return !Regex.IsMatch(@this, "[^a-zA-Z]");
+        }
     }
 }

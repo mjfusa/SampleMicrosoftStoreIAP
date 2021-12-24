@@ -11,6 +11,7 @@ namespace MSIAPSample.Views
     public class InventoryView
     {
         public ObservableCollection<StoreProductEx> OwnedDurables = new ObservableCollection<StoreProductEx>();
+        public ObservableCollection<StoreProductEx> OwnedSubscriptions = new ObservableCollection<StoreProductEx>();
 
         public InventoryView()
         {
@@ -24,6 +25,17 @@ namespace MSIAPSample.Views
             {
                 OwnedDurables.Add(d.Value);
             }
+            var subscriptions = await WindowsStoreHelper.GetPurchasedSubscriptionProductAsync();
+            foreach (var s in subscriptions)
+            {
+                OwnedDurables.Add(new StoreProductEx(s));
+            }
+            var storeManagedConsumables = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
+            foreach (var s in subscriptions)
+            {
+                OwnedDurables.Add(new StoreProductEx(s));
+            }
+
             return true;
         }
     }
