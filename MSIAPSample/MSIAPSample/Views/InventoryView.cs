@@ -28,12 +28,12 @@ namespace MSIAPSample.Views
             var subscriptions = await WindowsStoreHelper.GetPurchasedSubscriptionProductAsync();
             foreach (var s in subscriptions)
             {
-                OwnedDurables.Add(new StoreProductEx(s));
+                //OwnedDurables.Add(new StoreProductEx(s));
             }
             var storeManagedConsumables = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
             foreach (var s in subscriptions)
             {
-                OwnedDurables.Add(new StoreProductEx(s));
+                //OwnedDurables.Add(new StoreProductEx(s));
             }
 
             return true;

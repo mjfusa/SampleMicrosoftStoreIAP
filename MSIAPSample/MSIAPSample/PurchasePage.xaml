@@ -96,9 +96,6 @@
                             <TextBlock Grid.Row="2" Margin="10,0,10,0" Height="55"  Text="{x:Bind storeProduct.Description}"  MaxWidth="240" TextWrapping="Wrap"/>
                             <TextBlock Grid.Row="3" Margin="10,0,10,10" Text="{x:Bind storeProduct.Price.FormattedPrice}"   HorizontalTextAlignment="Center" 
                                        MaxWidth="240" />
-                            <!--<TextBlock Grid.Row="4" FontFamily="Segoe UI" 
-                                       HorizontalTextAlignment="Center" 
-                                       Text="{Binding UnmanagedUnitsRemaining,Converter={StaticResource StringFormatConverter},ConverterParameter='Coins remaining: {0}'}" Margin="10,0,10,10" MinWidth="180"/>-->
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>

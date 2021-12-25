@@ -7,9 +7,9 @@ using Windows.UI.Popups;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
-    
-
+using WinRT;    
 using WinRT.Interop;
+using Windows.UI.Core;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -69,7 +69,7 @@ namespace MSIAPSample
                             }
                             break;
                         case "Consumable": // Store managed consumables
-                            var result = await StoreContext.GetDefault().GetConsumableBalanceRemainingAsync(product.storeProduct.StoreId);
+                            var result = await StoreContext.GetDefault().GetConsumableBalanceRemainingAsync(product.storeProduct.StoreId); // TODO Move to StoreHelper
                             product.storeManagedConsumableRemainingBalance = result.BalanceRemaining;
                             StoreManagedConsumables.Add(product);
                             break;
@@ -95,7 +95,11 @@ namespace MSIAPSample
         {
             var okCommand = new UICommand("OK", cmd => { return; });
             MessageDialog md = new MessageDialog($"{errorMsg}");
-            InitializeWithWindow.Initialize(md, WindowNative.GetWindowHandle(this));
+
+            IInitializeWithWindow initWindow = ((object)md).As<IInitializeWithWindow>();
+            var hwnd = (long)System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+            initWindow.Initialize(hwnd);
+
             md.Title = "An error occurred";
             md.Options = MessageDialogOptions.None;
             md.Commands.Add(okCommand);
@@ -178,7 +182,7 @@ namespace MSIAPSample
             }
             if (sp.storeProduct.ProductKind == "UnmanagedConsumable" )
             {
-                if (sp.UnmanagedUnitsRemaining > 0)
+                if (sp.developerManagedConsumable.UnmanagedUnitsRemaining > 0)
                 {
                     md.Commands.Add(fulFillCommand);
                 }
@@ -186,7 +190,9 @@ namespace MSIAPSample
 
             md.Commands.Add(purchaseCommand);
             md.Commands.Add(cancelCommand);
-            InitializeWithWindow.Initialize(md, WindowNative.GetWindowHandle(this));
+            IInitializeWithWindow initWindow = ((object)md).As<IInitializeWithWindow>();
+            var hwnd = (long)System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+            initWindow.Initialize(hwnd);
             var res1 = await md.ShowAsync();
             if (res1.Id == null)
             {
@@ -251,7 +257,7 @@ namespace MSIAPSample
         }
         public string TotalFormatted
         {
-            get => $"Coins balance: {_total}";
+            get => $"Coin balance: {_total}";
             set => SetProperty(ref _totalFormatted, value);
         }
 
