@@ -13,6 +13,7 @@ using Windows.Storage;
 using WinRT;
 using System.Linq;
 using System.Text.Json;
+using Windows.UI.WebUI;
 
 namespace MSIAPHelper
 {
@@ -36,7 +37,10 @@ namespace MSIAPHelper
         private static bool _isActive = false;
         private static bool _isTrial = false;
         private static IDictionary<string, StoreProductEx> _storeManagedConsumables = new Dictionary<string, StoreProductEx>();
+        private static IDictionary<string, StoreProductEx> _ownedStoreManagedConsumables = new Dictionary<string, StoreProductEx>();
+        private static IDictionary<string, StoreProductEx> _ownedDeveloperManagedConsumables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _allAddOns = new Dictionary<string, StoreProductEx>();
+        private static IDictionary<string, StoreProductEx> _userSubs = new Dictionary<string, StoreProductEx>();
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int GetCurrentPackageFullName(ref int packageFullNameLength, ref StringBuilder packageFullName);
@@ -86,21 +90,22 @@ namespace MSIAPHelper
             return _isActive;
         }
 
-        public static IAsyncOperation<bool> CheckIfUserHasSubscriptionAsync(string subscriptionId)
-        {
-            return checkIfUserHasSubscriptionAsync(subscriptionId).AsAsyncOperation();
-        }
-        private static async Task<bool> checkIfUserHasSubscriptionAsync(string subscriptionId)
+        //public static IAsyncOperation<bool> CheckIfUserHasSubscriptionAsync(string subscriptionId)
+        //{
+        //    return checkIfUserHasSubscriptionAsync(subscriptionId).AsAsyncOperation();
+        //}
+
+        private static async Task<StoreProductEx> ProcessSubscription(string subscriptionId, StoreProductEx sp)
         {
             StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
-
+            StoreProductEx result = sp;
             // Check if the customer has the rights to the subscription.
             foreach (var addOnLicense in appLicense.AddOnLicenses)
             {
                 StoreLicense license = addOnLicense.Value;
                 if (license.SkuStoreId.StartsWith(subscriptionId))
                 {
-                    _allAddOns[subscriptionId].SubscriptionIsInUserCollection = false;
+                    result.SubscriptionIsInUserCollection = false;
                     if (license.IsActive)
                     {
                         // The expiration date is available in the license.ExpirationDate property.
@@ -109,20 +114,102 @@ namespace MSIAPHelper
                         {
                             var tzLocal = TimeZoneInfo.Local;
                             var timeLocal = TimeZoneInfo.ConvertTimeFromUtc(baseTime.DateTime, tzLocal);
-                            _allAddOns[subscriptionId].ExpirationDate = timeLocal.ToShortDateString() + " " + timeLocal.ToShortTimeString();
+                            result.ExpirationDate = timeLocal.ToShortDateString() + " " + timeLocal.ToShortTimeString();
                         }
                         catch (TimeZoneNotFoundException)
                         {
-                            _allAddOns[subscriptionId].ExpirationDate = baseTime.DateTime.ToShortDateString() + " " + baseTime.DateTime.ToShortTimeString();
+                            result.ExpirationDate = baseTime.DateTime.ToShortDateString() + " " + baseTime.DateTime.ToShortTimeString();
                             Console.WriteLine("Unable to create DateTimeOffset based on U.S. Central Standard Time.");
                         }
-                        _allAddOns[subscriptionId].SubscriptionIsInUserCollection = true;
-                        return true;
+                        result.SubscriptionIsInUserCollection = true;
+                        return result;
                     }
                 }
             }
             // The customer does not have a license to the subscription.
-            return false;
+            return result;
+
+        }
+
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedDeveloperManagedConsumablesAsync()
+        {
+            return getPurchasedDeveloperManagedConsumablesAsync().AsAsyncOperation();
+        }
+        private static async Task<IDictionary<string, StoreProductEx>> getPurchasedDeveloperManagedConsumablesAsync()
+        {
+            string[] productKinds = { AddOnKind.DeveloperManagedConsumable };
+            List<String> filterList = new List<string>(productKinds);
+            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
+            foreach (var product in res.Products.Values)
+            {
+                if (!_ownedDeveloperManagedConsumables.ContainsKey(product.StoreId))
+                {
+                    if (product.IsInUserCollection)
+                    {
+                        // This consumable has not been fulfilled! There was an error in purchase flow
+                        Debug.Assert(false);
+                    }
+
+                    var sp = new StoreProductEx(product);
+            
+                    ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                    if (localSettings.Values.ContainsKey("Units" + product.StoreId))
+                    {
+                        var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
+                        sp.developerManagedConsumable = deSer;
+                    }
+                    else
+                    {
+                        int i = 0;
+                        int iResult;
+                        while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
+                        {
+                            i++;
+                        }
+                        uint units;
+                        if (i == 0)
+                        {
+                            units = 100;
+                        }
+                        else
+                        {
+                            units = uint.Parse(product.InAppOfferToken.Substring(0, i));
+                        }
+
+
+                        DeveloperManagedConsumable.Kind dmcKind = DeveloperManagedConsumable.Kind.Unknown;
+                        var result = "";
+                        var arr = product.InAppOfferToken.Split(' ');
+                        if (arr.Count() > 1)
+                        {
+                            result = arr[1];
+                        }
+                        switch (result.ToLower())
+                        {
+                            case "coin":
+                                dmcKind = DeveloperManagedConsumable.Kind.Coins;
+                                break;
+                            case "coins":
+                                dmcKind = DeveloperManagedConsumable.Kind.Coins;
+                                break;
+                            default:
+                                dmcKind = DeveloperManagedConsumable.Kind.Unknown;
+                                break;
+                        }
+
+                        sp.developerManagedConsumable = new DeveloperManagedConsumable(units, dmcKind);
+
+                    }
+                    _ownedDeveloperManagedConsumables.Add(sp.storeProduct.StoreId, sp);
+                }
+            }
+            return _ownedDeveloperManagedConsumables;
+        }
+
+        public static IAsyncOperation<uint> GetStoreManagedConsumableBalanceAsync()
+        {
+            return getTotalUnmangedConsumableBalanceRemainingAsync().AsAsyncOperation();
         }
 
         public static IAsyncOperation<uint> GetTotalUnmangedConsumableBalanceRemainingAsync()
@@ -165,7 +252,7 @@ namespace MSIAPHelper
         private static async Task<string> spendDeveloperManagedConsumable(string StoreId, uint unitsToFulfill)
         {
             var product = GetConsumableProduct(StoreId);
-            if (TotalUnmangedUnitsRemaining < unitsToFulfill) 
+            if (TotalUnmangedUnitsRemaining < unitsToFulfill)
             {
                 throw new Exception("Insufficient units");
             }
@@ -255,6 +342,30 @@ namespace MSIAPHelper
             return $"{result}";
 
         }
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedStoreManagedConsumablesAsync()
+        {
+            return getPurchasedStoreManagedConsumablesAsync().AsAsyncOperation();
+        }
+        public static async Task<IDictionary<string, StoreProductEx>> getPurchasedStoreManagedConsumablesAsync()
+        {
+            string[] productKinds = { AddOnKind.StoreManagedConsumable };
+            List<String> filterList = new List<string>(productKinds);
+            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
+            foreach (var product in res.Products.Values)
+            {
+                if (!_ownedStoreManagedConsumables.ContainsKey(product.StoreId))
+                {
+                    _ownedStoreManagedConsumables.Add(product.StoreId, new StoreProductEx(product));
+                    var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
+                    _ownedStoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = result.BalanceRemaining;
+                }
+
+
+            }
+            return _ownedStoreManagedConsumables;
+
+        }
 
         private static DeveloperManagedConsumable.Kind GetUnmanagedCosumableKind(StoreProduct p)
         {
@@ -336,8 +447,7 @@ namespace MSIAPHelper
                     if (localSettings.Values.ContainsKey("Units" + product.StoreId))
                     {
                         var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
-                        sp.developerManagedConsumable = deSer;// new DeveloperManagedConsumable(deSer.UnmanagedUnitsRemaining, deSer.dmcKind);
-                        //TotalUnmangedUnitsRemaining += sp.developerManagedConsumable.UnmanagedUnitsRemaining;
+                        sp.developerManagedConsumable = deSer;
                     }
                     else
                     {
@@ -384,12 +494,20 @@ namespace MSIAPHelper
                     //TotalUnmangedUnitsRemaining += sp.developerManagedConsumable.UnmanagedUnitsRemaining;
 
                 }
+                else if (product.ProductKind == AddOnKind.Durable)
+                {
+                    if (product.Skus[0].IsSubscription)
+                    {
+                        var result = await ProcessSubscription(product.StoreId, sp);
+                        sp = result;
+                    }
+                }
 
 
                 _allAddOns.Add(product.StoreId, sp);
             }
             return _allAddOns;
-    }
+        }
 
 
 
@@ -417,37 +535,30 @@ namespace MSIAPHelper
 
         public static uint TotalUnmangedUnitsRemaining { get; private set; }
 
-        public static IAsyncOperation<IList<StoreProduct>> GetPurchasedSubscriptionProductAsync()
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedSubscriptionProductAsync()
         {
             return getPurchasedSubscriptionProductAsync().AsAsyncOperation();
         }
-        private static async Task<IList<StoreProduct>> getPurchasedSubscriptionProductAsync()
+        private static async Task<IDictionary<string, StoreProductEx>> getPurchasedSubscriptionProductAsync()
         {
-            IList<StoreProduct> UserSubs = new List<StoreProduct>();
             // Load the sellable add-ons for this app and check if the trial is still 
             // available for this customer. If they previously acquired a trial they won't 
             // be able to get a trial again, and the StoreProduct.Skus property will 
             // only contain one SKU.
 
-            StoreProductQueryResult result =
-                await _storeContext.GetAssociatedStoreProductsAsync(new string[] { AddOnKind.Durable });
-
-            if (result.ExtendedError != null)
+            foreach (var a in _allAddOns)
             {
-                throw new Exception(ReportError((uint)result.ExtendedError.HResult));
-            }
-
-            // Look for the product that represents the subscription.
-            foreach (var item in result.Products)
-            {
-                StoreProduct product = item.Value;
-                if ((product.IsInUserCollection) && (product.Skus[0].IsSubscription))
+                if (a.Value.SubscriptionIsInUserCollection == true)
                 {
-                    UserSubs.Add(product);
+                    if (!_userSubs.ContainsKey(a.Value.storeProduct.StoreId))
+                    {
+                        _userSubs.Add(a);
+                    }
                 }
             }
 
-            return UserSubs;
+
+            return _userSubs;
         }
 
 

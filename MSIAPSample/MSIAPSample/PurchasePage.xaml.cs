@@ -59,7 +59,7 @@ namespace MSIAPSample
                             {
                                 if (s.IsSubscription)
                                 {
-                                    await WindowsStoreHelper.CheckIfUserHasSubscriptionAsync(product.storeProduct.StoreId);
+                                    //var sp = await WindowsStoreHelper.GetPurchasedSubscriptionProductAsync(product.storeProduct.StoreId);
                                     Subscriptions.Add(product); 
                                 }
                                 else

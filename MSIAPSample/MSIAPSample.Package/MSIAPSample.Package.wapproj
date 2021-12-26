@@ -62,6 +62,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\CoinsOneBag.png" />
     <Content Include="Images\SmallTile.scale-100.png" />
     <Content Include="Images\SmallTile.scale-125.png" />
     <Content Include="Images\SmallTile.scale-150.png" />

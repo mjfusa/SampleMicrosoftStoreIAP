@@ -26,8 +26,6 @@ namespace MSIAPSample
     /// </summary>
     public sealed partial class InventoryPage : Page
     {
-
-
         public InventoryPage()
         {
             this.InitializeComponent();
@@ -36,7 +34,6 @@ namespace MSIAPSample
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await InventoryViewPage.Initialize();
-
         }
     }
 }
