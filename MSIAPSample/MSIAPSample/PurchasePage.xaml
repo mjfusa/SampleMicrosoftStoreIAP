@@ -17,7 +17,7 @@
     <ScrollViewer>
         <RelativePanel x:Name="MainPanel" Margin="20">
             <TextBlock Text="Durables, Consumables, Subscriptions" FontWeight="Bold" x:Name="tbAnchor" />
-            <GridView Grid.Row="1" Grid.Column="0" Margin="0,5,0,5"
+            <GridView Grid.Row="1" Grid.Column="0" Margin="0,5,0,5" 
                       Header="Durables"
                       Background="AliceBlue" 
                       x:Name="lvDurables" 

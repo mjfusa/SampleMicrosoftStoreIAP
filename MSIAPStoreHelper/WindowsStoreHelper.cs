@@ -14,6 +14,7 @@ using WinRT;
 using System.Linq;
 using System.Text.Json;
 using Windows.UI.WebUI;
+using System.Collections.ObjectModel;
 
 namespace MSIAPHelper
 {
@@ -38,6 +39,7 @@ namespace MSIAPHelper
         private static bool _isTrial = false;
         private static IDictionary<string, StoreProductEx> _storeManagedConsumables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _ownedStoreManagedConsumables = new Dictionary<string, StoreProductEx>();
+
         private static IDictionary<string, StoreProductEx> _ownedDeveloperManagedConsumables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _allAddOns = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _userSubs = new Dictionary<string, StoreProductEx>();
@@ -509,6 +511,26 @@ namespace MSIAPHelper
             return _allAddOns;
         }
 
+
+
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetAllDurables()
+        {
+            return getAllDurables().AsAsyncOperation();
+        }
+
+        private static async Task<IDictionary<string, StoreProductEx>> getAllDurables()
+        {
+            string[] productKinds = { AddOnKind.Durable };
+            List<String> filterList = new List<string>(productKinds);
+            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+            IDictionary<string, StoreProductEx> result = new Dictionary<string, StoreProductEx>();
+            foreach (var product in res.Products.Values)
+            {
+                result.Add(product.StoreId, new StoreProductEx(product));
+            }
+
+            return result;
+        }
 
 
         public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedDurables()

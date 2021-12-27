@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.WinUI.UI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -30,10 +31,17 @@ namespace MSIAPSample
         {
             this.InitializeComponent();
         }
-        public InventoryView InventoryViewPage = new InventoryView();
+        //private InventoryView inventoryViewPage = new InventoryView();
+
+        public InventoryView InventoryViewPage = new InventoryView();//{ get => inventoryViewPage; set => inventoryViewPage = value; }
+        public AddOnsView AddOnsViewPage = new AddOnsView();//{ get => inventoryViewPage; set => inventoryViewPage = value; }
+
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await InventoryViewPage.Initialize();
+            await AddOnsViewPage.Initialize();
+            lvDurables.ItemsSource = AddOnsViewPage.AcvOwnedDurables;
         }
+
     }
 }

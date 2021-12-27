@@ -20,7 +20,6 @@ namespace MSIAPSample
     /// </summary>
     public sealed partial class PurchasePage : Page
     {
-        //public event PropertyChangedEventHandler PropertyChanged; 
         public PurchasePage()
         {
             this.InitializeComponent();
@@ -69,9 +68,16 @@ namespace MSIAPSample
                             }
                             break;
                         case "Consumable": // Store managed consumables
-                            var result = await StoreContext.GetDefault().GetConsumableBalanceRemainingAsync(product.storeProduct.StoreId); // TODO Move to StoreHelper
-                            product.storeManagedConsumableRemainingBalance = result.BalanceRemaining;
-                            StoreManagedConsumables.Add(product);
+                            var res = await WindowsStoreHelper.GetPurchasedStoreManagedConsumablesAsync();
+                            foreach (var s in res.Values)
+                            {
+                                if (s.storeProduct.StoreId == product.storeProduct.StoreId)
+                                {
+                                    product.storeManagedConsumableRemainingBalance = s.storeManagedConsumableRemainingBalance;
+                                    StoreManagedConsumables.Add(product);
+                                    break;
+                                }
+                            }
                             break;
                         case "UnmanagedConsumable": // Developer managed consumables
                             UnmanagedConsumables.Add(product);
