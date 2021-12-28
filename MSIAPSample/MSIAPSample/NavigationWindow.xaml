@@ -10,11 +10,12 @@
 
     <muxc:NavigationView x:Name="NavigationView"
                 Header="Microsoft In App Purchase Sample"
+                IsBackButtonVisible="Collapsed"
                 SelectionChanged="NavigationView_SelectionChanged">
 
         <muxc:NavigationView.MenuItems>
-            <muxc:NavigationViewItem Icon="Play" Content="Inventory" Tag="InventoryPage" />
-            <muxc:NavigationViewItem Icon="Save" Content="Purchase" Tag="PurchasePage" />
+            <muxc:NavigationViewItem Icon="Play" Content="Inventory" Tag="MSIAPSample.InventoryPage" />
+            <muxc:NavigationViewItem Icon="Save" Content="Purchase" Tag="MSIAPSample.PurchasePage" />
         </muxc:NavigationView.MenuItems>
         <Frame x:Name="contentFrame"/>
     </muxc:NavigationView>

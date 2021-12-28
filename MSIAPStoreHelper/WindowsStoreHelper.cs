@@ -41,6 +41,7 @@ namespace MSIAPHelper
         private static IDictionary<string, StoreProductEx> _ownedStoreManagedConsumables = new Dictionary<string, StoreProductEx>();
 
         private static IDictionary<string, StoreProductEx> _ownedDeveloperManagedConsumables = new Dictionary<string, StoreProductEx>();
+        private static IDictionary<string, StoreProductEx> _Durables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _allAddOns = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _userSubs = new Dictionary<string, StoreProductEx>();
 
@@ -54,6 +55,28 @@ namespace MSIAPHelper
             int result = GetCurrentPackageFullName(ref length, ref sb);
 
             return result != 15700;
+        }
+
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetStoreManagedConsumablesAsync()
+        {
+            return getStoreManagedConsumablesAsync().AsAsyncOperation();
+        }
+        public static async Task<IDictionary<string, StoreProductEx>> getStoreManagedConsumablesAsync()
+        {
+            string[] productKinds = { AddOnKind.StoreManagedConsumable };
+            List<String> filterList = new List<string>(productKinds);
+            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
+            foreach (var product in res.Products.Values)
+            {
+                if (!_ownedStoreManagedConsumables.ContainsKey(product.StoreId))
+                {
+                    _ownedStoreManagedConsumables.Add(product.StoreId, new StoreProductEx(product));
+                    var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
+                    _ownedStoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = result.BalanceRemaining;
+                }
+            }
+            return _ownedStoreManagedConsumables;
         }
 
         public static void CheckIfSubscriptionIsInUserCollection()
@@ -162,6 +185,79 @@ namespace MSIAPHelper
             return result;
 
         }
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync()
+        {
+            return getConsumablesAsync().AsAsyncOperation();
+        }
+        public static async Task<IDictionary<string, StoreProductEx>> getConsumablesAsync()
+        {
+            string[] productKinds = { AddOnKind.DeveloperManagedConsumable };
+            List<String> filterList = new List<string>(productKinds);
+            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
+
+            var devManagedConsumables = new Dictionary<string, StoreProductEx>();
+            foreach (var product in res.Products.Values)
+            {
+                if (product.IsInUserCollection)
+                {
+                    // This consumable has not been fulfilled! There was an error in purchase flow
+                    Debug.Assert(false);
+                }
+                var sp = new StoreProductEx(product);
+
+                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                if (localSettings.Values.ContainsKey("Units" + product.StoreId))
+                {
+                    var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
+                    sp.developerManagedConsumable = deSer;
+                }
+                else
+                {
+                    int i = 0;
+                    int iResult;
+                    while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
+                    {
+                        i++;
+                    }
+                    uint units;
+                    if (i == 0)
+                    {
+                        units = 100;
+                    }
+                    else
+                    {
+                        units = uint.Parse(product.InAppOfferToken.Substring(0, i));
+                    }
+
+
+                    DeveloperManagedConsumable.Kind dmcKind = DeveloperManagedConsumable.Kind.Unknown;
+                    var result = "";
+                    var arr = product.InAppOfferToken.Split(' ');
+                    if (arr.Count() > 1)
+                    {
+                        result = arr[1];
+                    }
+                    switch (result.ToLower())
+                    {
+                        case "coin":
+                            dmcKind = DeveloperManagedConsumable.Kind.Coins;
+                            break;
+                        case "coins":
+                            dmcKind = DeveloperManagedConsumable.Kind.Coins;
+                            break;
+                        default:
+                            dmcKind = DeveloperManagedConsumable.Kind.Unknown;
+                            break;
+                    }
+
+                    sp.developerManagedConsumable = new DeveloperManagedConsumable(units, dmcKind);
+
+                }
+                devManagedConsumables.Add(sp.storeProduct.StoreId, sp);
+            }
+            return devManagedConsumables;
+        }
+ 
 
         public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedDeveloperManagedConsumablesAsync()
         {
@@ -553,13 +649,18 @@ namespace MSIAPHelper
             string[] productKinds = { AddOnKind.Durable };
             List<String> filterList = new List<string>(productKinds);
             var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-            IDictionary<string, StoreProductEx> result = new Dictionary<string, StoreProductEx>();
+
             foreach (var product in res.Products.Values)
             {
-                result.Add(product.StoreId, new StoreProductEx(product));
+                if (!_Durables.ContainsKey(product.StoreId))
+                {
+                    _Durables.Add(product.StoreId, new StoreProductEx(product));
+                    var bal = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
+                    _Durables[product.StoreId].storeManagedConsumableRemainingBalance = bal.BalanceRemaining;
+                }
             }
 
-            return result;
+            return _Durables;
         }
 
 

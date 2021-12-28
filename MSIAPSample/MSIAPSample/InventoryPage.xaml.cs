@@ -32,16 +32,29 @@ namespace MSIAPSample
             this.InitializeComponent();
         }
 
-        public InventoryView InventoryViewPage = new InventoryView();//{ get => inventoryViewPage; set => inventoryViewPage = value; }
-        public AddOnsView AddOnsViewPage = new AddOnsView();//{ get => inventoryViewPage; set => inventoryViewPage = value; }
-
+        private static bool bInitialized = false;
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            await InventoryViewPage.Initialize();
-            await AddOnsViewPage.Initialize();
-            lvDurables.ItemsSource = AddOnsViewPage.AcvOwnedDurables;
-            gvSubscriptions.ItemsSource = AddOnsViewPage.AcvOwnedSubscriptions;
+            if (!bInitialized)
+            {
+                await AddOnsView.UpdateDurables();
+                await AddOnsView.UpdateConsumables();
+                await AddOnsView.UpdateStoreManagedConsumables();
+                bInitialized = true;
+            }
+
+            lvDurables.ItemsSource = AddOnsView.AcvOwnedDurables;
+            gvSubscriptions.ItemsSource = AddOnsView.AcvOwnedSubscriptions;
+            gvUnmanagedConsumables.ItemsSource = AddOnsView.Consumables;
+            gvStoreManagedConsumables.ItemsSource = AddOnsView.AcvOwnedStoreManagedConsumables;
+
         }
 
+        private void btnPurchaseNav_Click(object sender, RoutedEventArgs e)
+        {
+            var navigation = (Application.Current as App).Navigation;
+            var purchaseItem = navigation.GetNavigationViewItems(typeof(MSIAPSample.PurchasePage)).First();
+            navigation.SetCurrentNavigationViewItem(purchaseItem);
+        }
     }
 }

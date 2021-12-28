@@ -35,6 +35,13 @@ namespace MSIAPSample
             this.InitializeComponent();
         }
 
+        private NavigationWindow navigationWindow;
+
+        //public INavigation Navigation {
+        //    get => navigationWindow; 
+        //    set => navigationWindow = (NavigationWindow)value ; }
+        public INavigation Navigation => navigationWindow;
+
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
@@ -42,10 +49,10 @@ namespace MSIAPSample
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new NavigationWindow();
-            m_window.Activate();
+            navigationWindow = new NavigationWindow();
+            navigationWindow.Activate();
         }
 
-        private Window m_window;
+        //private Window m_window;
     }
 }

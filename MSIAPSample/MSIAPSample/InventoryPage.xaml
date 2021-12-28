@@ -10,7 +10,9 @@
     mc:Ignorable="d" Loaded="Page_Loaded">
 
     <ScrollViewer>
-        <RelativePanel x:Name="MainPanel" Margin="20">
+        <StackPanel>
+        <Button x:Name="btnPurchaseNav" Content="Make an In App Purchase"  Click="btnPurchaseNav_Click" Margin="20,0,0,0" HorizontalAlignment="Center" Background="AntiqueWhite"/>
+        <RelativePanel x:Name="MainPanel" Margin="20,10,0,0">
             <Grid x:Name="gridUnmanagedConsumables"  Background="#FFF7F0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -19,12 +21,12 @@
                 </Grid.RowDefinitions>
                 <TextBlock Text="Developer Managed Consumables" HorizontalAlignment="Center" Margin="10,0,10,0"/>
                 <Image Grid.Row="1" Margin="10" Source="Images/CoinsOneBag.png" Height="100" MinWidth="100" ui:Effects.Shadow="{StaticResource CommonShadow}"/>
-                <TextBlock Grid.Row="2"  Margin="0,0,0,10" Text="{x:Bind InventoryViewPage.TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                <!--<TextBlock Grid.Row="2"  Margin="0,0,0,10" Text="{x:Bind AddOnsViewPage.TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}" HorizontalAlignment="Center" FontWeight="SemiBold"/>-->
             </Grid>
             <GridView RelativePanel.Below="gridUnmanagedConsumables"
                       Background="AliceBlue" 
-                      x:Name="gvUnmanagedConsumables" 
-                      ItemsSource="{x:Bind InventoryViewPage.OwnedUnmangedConsumables,Mode=OneWay}"  >
+                      x:Name="gvUnmanagedConsumables">
+                <!--ItemsSource="{x:Bind InventoryViewPage.OwnedUnmangedConsumables,Mode=OneWay}"  >-->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" Margin="5,0,0,0"
@@ -139,8 +141,8 @@
             <GridView RelativePanel.Below="gvSubscriptions"  Grid.Row="1" Grid.Column="0" Margin="0,5,0,5"
                       Header="Store Managed Consumables"
                       Background="AliceBlue" 
-                      x:Name="gvStoreManagedConsumables" 
-                      ItemsSource="{x:Bind InventoryViewPage.OwnedStoreManagedConsumables,Mode=OneWay}"  >
+                      x:Name="gvStoreManagedConsumables">
+                <!--ItemsSource="{x:Bind AddOnsViewPage.StoreManagedConsumables,Mode=OneWay}"  >-->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" MinWidth="220"
@@ -165,9 +167,9 @@
 
             </GridView>
 
-            
-            
-            
+
+
         </RelativePanel>
+        </StackPanel>
     </ScrollViewer>
 </Page>

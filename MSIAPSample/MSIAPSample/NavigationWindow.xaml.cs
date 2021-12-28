@@ -21,13 +21,17 @@ namespace MSIAPSample
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class NavigationWindow : Window
+    public sealed partial class NavigationWindow : Window, INavigation
     {
         public NavigationWindow()
         {
             this.InitializeComponent();
             NavigationView.SelectedItem = NavigationView.MenuItems.OfType<Microsoft.UI.Xaml.Controls.NavigationViewItem>().First();
 
+        }
+        public NavigationViewItem GetCurrentNavigationViewItem()
+        {
+            return NavigationView.SelectedItem as NavigationViewItem;
         }
         public void SetCurrentNavigationViewItem(NavigationViewItem item)
         {
@@ -41,7 +45,7 @@ namespace MSIAPSample
                 return;
             }
 
-            var windowClassname = "MSIAPSample." + item.Tag.ToString();
+            var windowClassname = item.Tag.ToString();
             
             contentFrame.Navigate(Type.GetType(windowClassname), item.Content);
             NavigationView.Header = item.Content;
