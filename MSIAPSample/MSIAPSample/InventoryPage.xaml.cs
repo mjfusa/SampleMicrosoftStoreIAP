@@ -31,7 +31,6 @@ namespace MSIAPSample
         {
             this.InitializeComponent();
         }
-        //private InventoryView inventoryViewPage = new InventoryView();
 
         public InventoryView InventoryViewPage = new InventoryView();//{ get => inventoryViewPage; set => inventoryViewPage = value; }
         public AddOnsView AddOnsViewPage = new AddOnsView();//{ get => inventoryViewPage; set => inventoryViewPage = value; }
@@ -41,6 +40,7 @@ namespace MSIAPSample
             await InventoryViewPage.Initialize();
             await AddOnsViewPage.Initialize();
             lvDurables.ItemsSource = AddOnsViewPage.AcvOwnedDurables;
+            gvSubscriptions.ItemsSource = AddOnsViewPage.AcvOwnedSubscriptions;
         }
 
     }

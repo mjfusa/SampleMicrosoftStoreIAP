@@ -56,6 +56,11 @@ namespace MSIAPHelper
             return result != 15700;
         }
 
+        public static void CheckIfSubscriptionIsInUserCollection()
+        {
+            throw new NotImplementedException();
+        }
+
         public static bool InitializeStoreContext()
         {
 
@@ -96,6 +101,31 @@ namespace MSIAPHelper
         //{
         //    return checkIfUserHasSubscriptionAsync(subscriptionId).AsAsyncOperation();
         //}
+
+        public static IAsyncOperation<bool> CheckIfSubscriptionIsInUserCollection(string storeId)
+        {
+            return checkIfSubscriptionIsInUserCollection(storeId).AsAsyncOperation();
+        }
+
+        public static async Task<bool> checkIfSubscriptionIsInUserCollection(string subscriptionId)
+        {
+            StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
+            // Check if the customer has the rights to the subscription.
+            foreach (var addOnLicense in appLicense.AddOnLicenses)
+            {
+                StoreLicense license = addOnLicense.Value;
+                if (license.SkuStoreId.StartsWith(subscriptionId))
+                {
+                    if (license.IsActive)
+                    {
+                        return true;
+                    }
+                }
+            }
+            // The customer does not have a license to the subscription.
+            return false;
+        }
+
 
         private static async Task<StoreProductEx> ProcessSubscription(string subscriptionId, StoreProductEx sp)
         {

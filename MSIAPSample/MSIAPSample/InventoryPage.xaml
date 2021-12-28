@@ -11,9 +11,6 @@
 
     <ScrollViewer>
         <RelativePanel x:Name="MainPanel" Margin="20">
-            <!--<RelativePanel.Resources>
-                <CollectionViewSource x:Name="cvsDurablesView" Source="{x:Bind MyProducts}" IsSourceGrouped="False"/>
-            </RelativePanel.Resources>-->
             <Grid x:Name="gridUnmanagedConsumables"  Background="#FFF7F0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -98,8 +95,8 @@
             <GridView RelativePanel.Below="lvDurables"  Grid.Row="1" Grid.Column="0" Margin="0,5,0,5"
                       Header="Subscriptions"
                       Background="AliceBlue" 
-                      x:Name="gvSubscriptions" 
-                      ItemsSource="{x:Bind InventoryViewPage.OwnedSubscriptions,Mode=OneWay}"  >
+                      x:Name="gvSubscriptions">
+                <!--ItemsSource="{x:Bind InventoryViewPage.OwnedSubscriptions,Mode=OneWay}"  >-->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" MinWidth="220"
