@@ -10,6 +10,7 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using WinRT;    
 using WinRT.Interop;
 using Windows.UI.Core;
+using Microsoft.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -23,6 +24,7 @@ namespace MSIAPSample
         public PurchasePage()
         {
             this.InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
             lvUnmanagedConsumablesMenuFlyout = Resources["lvUnmanagedConsumablesMenuFlyout"] as MenuFlyout;
         }
 

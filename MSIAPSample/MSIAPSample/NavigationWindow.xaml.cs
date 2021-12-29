@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -50,6 +51,11 @@ namespace MSIAPSample
             contentFrame.Navigate(Type.GetType(windowClassname), item.Content);
             NavigationView.Header = item.Content;
             NavigationView.SelectedItem = item;
+            if (contentFrame.BackStack.Count > 0)
+            {
+                NavigationView.IsBackButtonVisible = NavigationViewBackButtonVisible.Visible;
+                NavigationView.IsBackEnabled = true;
+            }
         }
         private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
@@ -102,6 +108,31 @@ namespace MSIAPSample
         public List<NavigationViewItem> GetNavigationViewItems(Type type, string title)
         {
             return GetNavigationViewItems(type).Where(ni => ni.Content.ToString() == title).ToList();
+        }
+
+        private void NavigationView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            var items= new List<NavigationViewItem>();
+            foreach (var b in contentFrame.BackStack)
+            {
+                var c = b.SourcePageType;
+                items = GetNavigationViewItems(c);
+                break;
+            }
+            if (contentFrame.CanGoBack)
+            {
+                contentFrame.GoBack();
+                if (items.Count > 0) { 
+                    SetCurrentNavigationViewItem(items[items.Count - 1]);
+                    if (items.Count == 1)
+                    {
+                        NavigationView.IsBackButtonVisible = NavigationViewBackButtonVisible.Collapsed;
+                        //NavigationView.IsBackEnabled = false;
+                    }
+                }
+            }
+            
+            
         }
     }
 

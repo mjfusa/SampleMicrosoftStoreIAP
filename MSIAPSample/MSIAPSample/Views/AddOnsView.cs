@@ -11,40 +11,48 @@ using Windows.Devices.AllJoyn;
 
 namespace MSIAPSample.Views
 {
-    public static class AddOnsView
+    public class AddOnsView
     {
-        private static ObservableCollection<StoreProductEx> durables = new ObservableCollection<StoreProductEx>();
-        private static ObservableCollection<StoreProductEx> subscriptions = new ObservableCollection<StoreProductEx>();
-        private static ObservableCollection<StoreProductEx> consumables = new ObservableCollection<StoreProductEx>();
-        private static UnmanagedUnitsRemaining totalUnmanagedUnits = new UnmanagedUnitsRemaining();
-        private static ObservableCollection<StoreProductEx> storeManagedConsumables = new ObservableCollection<StoreProductEx>();
+        private static readonly Lazy<AddOnsView> lazy =
+                new Lazy<AddOnsView>(() => new AddOnsView());
+        public static AddOnsView Instance { get { return lazy.Value; } }
+        private AddOnsView()
+        {
 
-        public static bool bInitialized = false;
+        }
 
-        private static AdvancedCollectionView acvOwnedDurables;
-        private static AdvancedCollectionView acvOwnedSubscriptions;
-        private static AdvancedCollectionView acvOwnedStoreManagedConsumables;
-        public static AdvancedCollectionView AcvOwnedDurables
+        private  ObservableCollection<StoreProductEx> durables = new ObservableCollection<StoreProductEx>();
+        private ObservableCollection<StoreProductEx> subscriptions = new ObservableCollection<StoreProductEx>();
+        private ObservableCollection<StoreProductEx> consumables = new ObservableCollection<StoreProductEx>();
+        private  UnmanagedUnitsRemaining totalUnmanagedUnits = new UnmanagedUnitsRemaining();
+        private ObservableCollection<StoreProductEx> storeManagedConsumables = new ObservableCollection<StoreProductEx>();
+
+        public bool bInitialized = false;
+
+        private AdvancedCollectionView acvOwnedDurables;
+        private AdvancedCollectionView acvOwnedSubscriptions;
+        private AdvancedCollectionView acvOwnedStoreManagedConsumables;
+        public AdvancedCollectionView AcvOwnedDurables
         {
             get => acvOwnedDurables;
 
             set => acvOwnedDurables = value;
         }
-        public static AdvancedCollectionView AcvOwnedSubscriptions
+        public AdvancedCollectionView AcvOwnedSubscriptions
         {
             get => acvOwnedSubscriptions;
 
             set => acvOwnedSubscriptions = value;
         }
-        public static AdvancedCollectionView AcvOwnedStoreManagedConsumables { get => acvOwnedStoreManagedConsumables; set => acvOwnedStoreManagedConsumables = value; }
+        public  AdvancedCollectionView AcvOwnedStoreManagedConsumables { get => acvOwnedStoreManagedConsumables; set => acvOwnedStoreManagedConsumables = value; }
 
-        public static ObservableCollection<StoreProductEx> Durables { get => durables; set => durables = value; }
-        public static ObservableCollection<StoreProductEx> Subscriptions { get => subscriptions; set => subscriptions = value; }
-        public static ObservableCollection<StoreProductEx> Consumables { get => consumables; set => consumables = value; }
-        public static UnmanagedUnitsRemaining TotalUnmanagedUnits { get => totalUnmanagedUnits; set => totalUnmanagedUnits = value; }
-        public static ObservableCollection<StoreProductEx>  StoreManagedConsumables { get => storeManagedConsumables; set => storeManagedConsumables = value; }
+        public ObservableCollection<StoreProductEx> Durables { get => durables; set => durables = value; }
+        public ObservableCollection<StoreProductEx> Subscriptions { get => subscriptions; set => subscriptions = value; }
+        public ObservableCollection<StoreProductEx> Consumables { get => consumables; set => consumables = value; }
+        public  UnmanagedUnitsRemaining TotalUnmanagedUnits { get => totalUnmanagedUnits; set => totalUnmanagedUnits = value; }
+        public ObservableCollection<StoreProductEx>  StoreManagedConsumables { get => storeManagedConsumables; set => storeManagedConsumables = value; }
 
-        public async static Task<bool> UpdateStoreManagedConsumables()
+        public async Task<bool> UpdateStoreManagedConsumables()
         {
             
             var sManagedConsumables = await WindowsStoreHelper.GetStoreManagedConsumablesAsync();
@@ -59,7 +67,7 @@ namespace MSIAPSample.Views
 
             return true;
         }
-        public static async Task<bool> UpdateConsumables()
+        public async Task<bool> UpdateConsumables()
         {
             var devManagedConsumables = await WindowsStoreHelper.GetConsumablesAsync();
             foreach (var s in devManagedConsumables.Values)
@@ -75,11 +83,11 @@ namespace MSIAPSample.Views
                 }
             }
             var balResult = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
-            TotalUnmanagedUnits.Total = balResult.ToString();
+            Instance.TotalUnmanagedUnits.Total = balResult.ToString();
 
             return true;
         }
-        public static async Task<bool> UpdateDurables()
+        public async Task<bool> UpdateDurables()
         {
             var durables = await WindowsStoreHelper.GetAllDurables();
             foreach (var d in durables)

@@ -11,6 +11,9 @@
     <muxc:NavigationView x:Name="NavigationView"
                 Header="Microsoft In App Purchase Sample"
                 IsBackButtonVisible="Collapsed"
+                IsBackEnabled="True"
+                BackRequested="NavigationView_BackRequested"
+                IsPaneOpen="False"         
                 SelectionChanged="NavigationView_SelectionChanged">
 
         <muxc:NavigationView.MenuItems>

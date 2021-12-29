@@ -21,8 +21,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock Text="Developer Managed Consumables" HorizontalAlignment="Center" Margin="10,0,10,0"/>
                 <Image Grid.Row="1" Margin="10" Source="Images/CoinsOneBag.png" Height="100" MinWidth="100" ui:Effects.Shadow="{StaticResource CommonShadow}"/>
-                <!--<TextBlock Grid.Row="2"  Margin="0,0,0,10" Text="{x:Bind AddOnsViewPage.TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}" HorizontalAlignment="Center" FontWeight="SemiBold"/>-->
-            </Grid>
+                    <TextBlock Grid.Row="2"  Margin="0,0,0,10" Text="{x:Bind InventoryAddOnsView.TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                </Grid>
             <GridView RelativePanel.Below="gridUnmanagedConsumables"
                       Background="AliceBlue" 
                       x:Name="gvUnmanagedConsumables">
@@ -51,12 +51,12 @@
                 </GridView.ItemTemplate>
 
             </GridView>
-            <GridView Margin="0,5,0,5"
+                <GridView Margin="0,5,0,5"
                       Header="Durables"
                       Background="AliceBlue" 
                       x:Name="lvDurables" 
                       RelativePanel.Below="gvUnmanagedConsumables">
-                <!--ItemsSource="{x:Bind InventoryViewPage.AcvOwnedDurables,Mode=OneWay}"  > // TODO Bug x:Bind to AdvancedCollectionView Not Working -->
+                    <!-- ItemsSource="{x:Bind InventoryAddOnsView.AcvOwnedDurables,Mode=OneWay}"  >  // TODO Bug x:Bind to AdvancedCollectionView Not Working -->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" 
@@ -101,7 +101,7 @@
                 <!--ItemsSource="{x:Bind InventoryViewPage.OwnedSubscriptions,Mode=OneWay}"  >-->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
-                        <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" MinWidth="220"
+                        <Grid Width="Auto" Height="Auto"  Background="#FFF7F1" CornerRadius="5" MaxWidth="250"
                               BorderThickness="1" BorderBrush="Black" 
                               VerticalAlignment="Center"
                               HorizontalAlignment="Center">
@@ -126,7 +126,7 @@
                                 </Grid.RowDefinitions>
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"  
                                            MinWidth="10" FontWeight="SemiBold"
-                                           TextWrapping="Wrap"
+                                           TextWrapping="WrapWholeWords"
                                            Text="{x:Bind storeProduct.Title}" />
                                 <TextBlock Grid.Row="1"  Grid.ColumnSpan="2"  TextAlignment="Center"
                                        Height="Auto"  Text="{x:Bind storeProduct.Description}" 
@@ -164,11 +164,7 @@
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>
-
             </GridView>
-
-
-
         </RelativePanel>
         </StackPanel>
     </ScrollViewer>

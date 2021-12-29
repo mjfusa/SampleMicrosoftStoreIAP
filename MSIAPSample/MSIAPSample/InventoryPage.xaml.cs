@@ -30,23 +30,29 @@ namespace MSIAPSample
         public InventoryPage()
         {
             this.InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Enabled;
         }
+
+
+        public AddOnsView InventoryAddOnsView { get => AddOnsView.Instance; }
+
 
         private static bool bInitialized = false;
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            var aov = AddOnsView.Instance;
             if (!bInitialized)
             {
-                await AddOnsView.UpdateDurables();
-                await AddOnsView.UpdateConsumables();
-                await AddOnsView.UpdateStoreManagedConsumables();
+                await aov.UpdateDurables();
+                await aov.UpdateConsumables();
+                await aov.UpdateStoreManagedConsumables();
                 bInitialized = true;
             }
 
-            lvDurables.ItemsSource = AddOnsView.AcvOwnedDurables;
-            gvSubscriptions.ItemsSource = AddOnsView.AcvOwnedSubscriptions;
-            gvUnmanagedConsumables.ItemsSource = AddOnsView.Consumables;
-            gvStoreManagedConsumables.ItemsSource = AddOnsView.AcvOwnedStoreManagedConsumables;
+            lvDurables.ItemsSource = aov.AcvOwnedDurables;
+            gvSubscriptions.ItemsSource = aov.AcvOwnedSubscriptions;
+            gvUnmanagedConsumables.ItemsSource = aov.Consumables;
+            gvStoreManagedConsumables.ItemsSource = aov.AcvOwnedStoreManagedConsumables;
 
         }
 
@@ -55,6 +61,7 @@ namespace MSIAPSample
             var navigation = (Application.Current as App).Navigation;
             var purchaseItem = navigation.GetNavigationViewItems(typeof(MSIAPSample.PurchasePage)).First();
             navigation.SetCurrentNavigationViewItem(purchaseItem);
+            
         }
     }
 }
