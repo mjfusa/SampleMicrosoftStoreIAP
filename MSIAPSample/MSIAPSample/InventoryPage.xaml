@@ -11,46 +11,19 @@
 
     <ScrollViewer>
         <StackPanel>
-        <Button x:Name="btnPurchaseNav" Content="Make an In App Purchase"  Click="btnPurchaseNav_Click" Margin="20,0,0,0" HorizontalAlignment="Center" Background="AntiqueWhite"/>
+        <Button x:Name="btnPurchaseNav" Content="Purchase Add Ons"  Click="btnPurchaseNav_Click" Margin="20,0,0,0" HorizontalAlignment="Center" Background="AntiqueWhite"/>
         <RelativePanel x:Name="MainPanel" Margin="20,10,0,0">
-            <Grid x:Name="gridUnmanagedConsumables"  Background="#FFF7F0">
+            <Grid x:Name="gridUnmanagedConsumables"  Background="#FFF7F0" Tapped="gridUnmanagedConsumables_Tapped">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Text="Developer Managed Consumables" HorizontalAlignment="Center" Margin="10,0,10,0"/>
-                <Image Grid.Row="1" Margin="10" Source="Images/CoinsOneBag.png" Height="100" MinWidth="100" ui:Effects.Shadow="{StaticResource CommonShadow}"/>
+                <Image Grid.Row="1" Margin="10" Source="Images/CoinsOneBag.png" Height="100" MinWidth="100" 
+                       ui:Effects.Shadow="{StaticResource CommonShadow}"/>
                 <TextBlock Grid.Row="2"  Margin="0,0,0,10" Text="{x:Bind InventoryAddOnsView.TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}" HorizontalAlignment="Center" FontWeight="SemiBold"/>
             </Grid>
-            <!--<GridView RelativePanel.Below="gridUnmanagedConsumables"
-                      Background="AliceBlue" 
-                      x:Name="gvUnmanagedConsumables">
-                --><!--ItemsSource="{x:Bind InventoryViewPage.OwnedUnmangedConsumables,Mode=OneWay}"  >--><!--
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="msiaphelper:StoreProductEx">
-                        <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" Margin="5,0,0,0"
-                              x:Name="lvUnmanagedConsumablesGrid"
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Center">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Image Grid.Row="0"  Source="{x:Bind GetImageUri()}" Height="100" MinWidth="180" Margin="10"  ui:Effects.Shadow="{StaticResource CommonShadow}"/>
-                            <TextBlock Grid.Row="1" FontFamily="Segoe UI" FontStyle="Italic" FontWeight="SemiBold"
-                                       HorizontalTextAlignment="Center" Text="{x:Bind storeProduct.Title}" Margin="30,0,30,0" MinWidth="180"/>
-                            <TextBlock Grid.Row="2" Margin="10,0,10,0" Height="55"  Text="{x:Bind storeProduct.Description}"  MaxWidth="240" TextWrapping="Wrap"/>
-                            <TextBlock Grid.Row="3" Margin="10,0,10,10" Text="{x:Bind storeProduct.Price.FormattedPrice}"   HorizontalTextAlignment="Center" 
-                                       MaxWidth="240" />
-                        </Grid>
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-
-            </GridView>-->
                 <GridView Margin="0,5,0,5"
                       Header="Durables"
                       Background="AliceBlue" 

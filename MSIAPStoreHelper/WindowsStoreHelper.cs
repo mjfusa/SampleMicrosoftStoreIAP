@@ -1,7 +1,9 @@
-﻿using Microsoft.UI.Xaml.Media;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -75,17 +77,11 @@ namespace MSIAPHelper
                     {
                         _StoreManagedConsumables.Remove(product.StoreId);
                         _StoreManagedConsumables[product.StoreId] = new StoreProductEx(product);
-                        //var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
                         _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = storeBal.BalanceRemaining;
                     }
                 }
             }
             return _StoreManagedConsumables;
-        }
-
-        public static void CheckIfSubscriptionIsInUserCollection()
-        {
-            throw new NotImplementedException();
         }
 
         public static bool InitializeStoreContext()
@@ -154,41 +150,41 @@ namespace MSIAPHelper
         }
 
 
-        private static async Task<StoreProductEx> ProcessSubscription(string subscriptionId, StoreProductEx sp)
-        {
-            StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
-            StoreProductEx result = sp;
-            // Check if the customer has the rights to the subscription.
-            foreach (var addOnLicense in appLicense.AddOnLicenses)
-            {
-                StoreLicense license = addOnLicense.Value;
-                if (license.SkuStoreId.StartsWith(subscriptionId))
-                {
-                    result.SubscriptionIsInUserCollection = false;
-                    if (license.IsActive)
-                    {
-                        // The expiration date is available in the license.ExpirationDate property.
-                        var baseTime = license.ExpirationDate;
-                        try
-                        {
-                            var tzLocal = TimeZoneInfo.Local;
-                            var timeLocal = TimeZoneInfo.ConvertTimeFromUtc(baseTime.DateTime, tzLocal);
-                            result.ExpirationDate = timeLocal.ToShortDateString() + " " + timeLocal.ToShortTimeString();
-                        }
-                        catch (TimeZoneNotFoundException)
-                        {
-                            result.ExpirationDate = baseTime.DateTime.ToShortDateString() + " " + baseTime.DateTime.ToShortTimeString();
-                            Console.WriteLine("Unable to create DateTimeOffset based on U.S. Central Standard Time.");
-                        }
-                        result.SubscriptionIsInUserCollection = true;
-                        return result;
-                    }
-                }
-            }
-            // The customer does not have a license to the subscription.
-            return result;
+        //private static async Task<StoreProductEx> ProcessSubscription(string subscriptionId, StoreProductEx sp)
+        //{
+        //    StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
+        //    StoreProductEx result = sp;
+        //    // Check if the customer has the rights to the subscription.
+        //    foreach (var addOnLicense in appLicense.AddOnLicenses)
+        //    {
+        //        StoreLicense license = addOnLicense.Value;
+        //        if (license.SkuStoreId.StartsWith(subscriptionId))
+        //        {
+        //            result.SubscriptionIsInUserCollection.Value = false;
+        //            if (license.IsActive)
+        //            {
+        //                // The expiration date is available in the license.ExpirationDate property.
+        //                var baseTime = license.ExpirationDate;
+        //                try
+        //                {
+        //                    var tzLocal = TimeZoneInfo.Local;
+        //                    var timeLocal = TimeZoneInfo.ConvertTimeFromUtc(baseTime.DateTime, tzLocal);
+        //                    result.ExpirationDate = timeLocal.ToShortDateString() + " " + timeLocal.ToShortTimeString();
+        //                }
+        //                catch (TimeZoneNotFoundException)
+        //                {
+        //                    result.ExpirationDate = baseTime.DateTime.ToShortDateString() + " " + baseTime.DateTime.ToShortTimeString();
+        //                    Console.WriteLine("Unable to create DateTimeOffset based on U.S. Central Standard Time.");
+        //                }
+        //                result.SubscriptionIsInUserCollection.Value = true;
+        //                return result;
+        //            }
+        //        }
+        //    }
+        //    // The customer does not have a license to the subscription.
+        //    return result;
 
-        }
+        //}
         public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync1()
         {
             return getConsumablesAsync1().AsAsyncOperation();
@@ -493,15 +489,20 @@ namespace MSIAPHelper
             {
                 if (!_Durables.ContainsKey(product.StoreId))
                 {
-
                     _Durables.Add(product.StoreId, new StoreProductEx(product));
                 }
                 else
                 {
-                    if (_Durables[product.StoreId].storeProduct.IsInUserCollection != product.IsInUserCollection)
+                    if (_Durables[product.StoreId].InUserCollectionEx != null)
                     {
-                        _Durables.Remove(product.StoreId);
-                        _Durables.Add(product.StoreId, new StoreProductEx(product));
+                        if (_Durables[product.StoreId].InUserCollectionEx.Value != product.IsInUserCollection)
+                        {
+                            if (_Durables[product.StoreId].storeProduct.Skus[0].IsSubscription)
+                            {
+                                _Durables[product.StoreId].SubscriptionIsInUserCollection.Value = product.IsInUserCollection;
+                            }
+                            _Durables[product.StoreId].InUserCollectionEx.Value = product.IsInUserCollection;
+                        }
                     }
                 }
             }
@@ -612,8 +613,6 @@ namespace MSIAPHelper
             }
             return result;
         }
-
-
     }
 
     public sealed class StoreProductEx
@@ -621,13 +620,17 @@ namespace MSIAPHelper
         public StoreProductEx(StoreProduct product)
         {
             _storeProduct = product;
+            InUserCollectionEx = new IsInUserCollectionEx(product.IsInUserCollection);
+            SubscriptionIsInUserCollection = new IsInUserCollectionEx(product.IsInUserCollection);
         }
 
         public DeveloperManagedConsumable developerManagedConsumable;
+        [DefaultValue(false)]
+        public IsInUserCollectionEx InUserCollectionEx { get; set; }
         private StoreProduct _storeProduct { get; set; }
         public StoreProduct storeProduct { get { return _storeProduct; } set { _storeProduct = value; } }
         public uint storeManagedConsumableRemainingBalance { get; set; }
-        public bool SubscriptionIsInUserCollection { get; set; }
+        public IsInUserCollectionEx SubscriptionIsInUserCollection { get; set; }
         public string ExpirationDate { get; internal set; }
 
         public ImageSource GetImageUri()
@@ -671,6 +674,20 @@ namespace MSIAPHelper
         }
         public uint UnmanagedUnitsRemaining { get; set; }
         public uint Units { get; }
+    }
+
+    public class IsInUserCollectionEx : ObservableObject
+    {
+        public IsInUserCollectionEx(bool inCollection)
+        {
+            Value = inCollection;
+        }
+        private bool _inUserCollection;
+        public bool Value
+        {
+            get => _inUserCollection;
+            set => SetProperty(ref _inUserCollection, value);
+        }
     }
 
     public static partial class Extensions

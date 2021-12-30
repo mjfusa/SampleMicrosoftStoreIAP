@@ -17,8 +17,8 @@
                 SelectionChanged="NavigationView_SelectionChanged">
 
         <muxc:NavigationView.MenuItems>
-            <muxc:NavigationViewItem Icon="Play" Content="Inventory" Tag="MSIAPSample.InventoryPage" />
-            <muxc:NavigationViewItem Icon="Save" Content="Purchase" Tag="MSIAPSample.PurchasePage" />
+            <muxc:NavigationViewItem Icon="AllApps"  Content="All Purchased Add Ons" Tag="MSIAPSample.InventoryPage" />
+            <muxc:NavigationViewItem Icon="Shop" Content="Buy Add Ons" Tag="MSIAPSample.PurchasePage" />
         </muxc:NavigationView.MenuItems>
         <Frame x:Name="contentFrame"/>
     </muxc:NavigationView>

@@ -1,18 +1,13 @@
-﻿using Microsoft.Toolkit.Mvvm;
-using MSIAPHelper;
-using System;
-using System.Collections.ObjectModel;
-using Windows.Services.Store;
-using Windows.UI.Popups;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using WinRT;    
-using WinRT.Interop;
-using Windows.UI.Core;
 using Microsoft.UI.Xaml.Navigation;
+using MSIAPHelper;
 using MSIAPSample.Views;
+using System;
 using System.Diagnostics;
+using Windows.UI.Popups;
+using WinRT;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -245,7 +240,6 @@ namespace MSIAPSample
             get => $"Coin balance: {_total}";
             set => SetProperty(ref _totalFormatted, value);
         }
-
     }
 
 }

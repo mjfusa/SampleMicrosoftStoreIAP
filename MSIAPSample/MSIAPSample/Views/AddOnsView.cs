@@ -1,14 +1,10 @@
 ﻿using CommunityToolkit.WinUI.UI;
-using CommunityToolkit.WinUI.UI.Media;
-using Microsoft.UI.Xaml.Data;
 using MSIAPHelper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.Devices.AllJoyn;
 
 namespace MSIAPSample.Views
 {
@@ -22,7 +18,7 @@ namespace MSIAPSample.Views
 
         }
 
-        private static ObservableCollection<StoreProductEx> durables = new ObservableCollection<StoreProductEx>();
+        private ObservableCollection<StoreProductEx> durables = new ObservableCollection<StoreProductEx>();
         private static ObservableCollection<StoreProductEx> subscriptions = new ObservableCollection<StoreProductEx>();
         private static ObservableCollection<StoreProductEx> consumables = new ObservableCollection<StoreProductEx>();
         private UnmanagedUnitsRemaining totalUnmanagedUnits = new UnmanagedUnitsRemaining();
@@ -36,13 +32,11 @@ namespace MSIAPSample.Views
         public AdvancedCollectionView AcvOwnedDurables
         {
             get => acvOwnedDurables;
-
             set => acvOwnedDurables = value;
         }
         public AdvancedCollectionView AcvOwnedSubscriptions
         {
             get => acvOwnedSubscriptions;
-
             set => acvOwnedSubscriptions = value;
         }
         public  AdvancedCollectionView AcvOwnedStoreManagedConsumables { get => acvOwnedStoreManagedConsumables; set => acvOwnedStoreManagedConsumables = value; }
@@ -55,7 +49,6 @@ namespace MSIAPSample.Views
 
         public async Task<bool> UpdateStoreManagedConsumables()
         {
-            
             var sManagedConsumables = await WindowsStoreHelper.GetStoreManagedConsumablesAsync();
 
             List<StoreProductEx> updateSP = null;
@@ -84,9 +77,6 @@ namespace MSIAPSample.Views
 
                 }
             }
-
-         
-
 
             return true;
         }
@@ -120,60 +110,27 @@ namespace MSIAPSample.Views
                     if (!Subscriptions.Contains(d.Value))
                     {
                         var bRes = await WindowsStoreHelper.IsSubscriptionIsInUserCollection(d.Value.storeProduct.StoreId);
-                        d.Value.SubscriptionIsInUserCollection = bRes;
-                        var res = Subscriptions.Where(x => x.storeProduct.StoreId == d.Value.storeProduct.StoreId).ToList();
-                        if (res.Count > 0)
-                        {
-                            Subscriptions.Remove(res[res.Count - 1]);
-                        }
+                        d.Value.SubscriptionIsInUserCollection.Value = bRes;
                         Subscriptions.Add(d.Value);
                     }
                 } else
                 {
-                    StoreProductEx temp=null;
                     if (!Durables.Contains(d.Value))
                     {
-                        var res = Durables.Where(x => x.storeProduct.StoreId == d.Value.storeProduct.StoreId).ToList();
-                        if (res.Count > 0)
-                        {
-                            Durables.Remove(res[res.Count - 1]);
-                        }
                         Durables.Add(d.Value);
-
-                    }
-                    else
-                    {
-                        foreach (var dl in Durables)
-                        {
-                            if (dl.storeProduct.StoreId == d.Value.storeProduct.StoreId)
-                            {
-                                if (dl.storeProduct.IsInUserCollection != d.Value.storeProduct.IsInUserCollection)
-                                {
-                                    temp = dl;
-                                    break;
-                                }
-                            }
-                        }
-                        if (temp != null)
-                        {
-                            Durables.Remove(temp);
-                            Durables.Add(d.Value);
-                        }
                     }
                 }
 
             }
 
-
             AcvOwnedDurables = new AdvancedCollectionView(Durables);
-            AcvOwnedDurables.Filter = x => ((StoreProductEx)x).storeProduct.IsInUserCollection == true;
+            AcvOwnedDurables.Filter = x => ((StoreProductEx)x).InUserCollectionEx.Value == true;
 
             AcvOwnedSubscriptions = new AdvancedCollectionView(Subscriptions);
-            AcvOwnedSubscriptions.Filter = x => ((StoreProductEx)x).SubscriptionIsInUserCollection == true;
+            AcvOwnedSubscriptions.Filter = x => ((StoreProductEx)x).SubscriptionIsInUserCollection.Value == true;
 
             AcvOwnedStoreManagedConsumables = new AdvancedCollectionView(storeManagedConsumables);
             AcvOwnedStoreManagedConsumables.Filter = x => ((StoreProductEx)x).storeProduct.IsInUserCollection == true;
-
             
             return true;
         }
