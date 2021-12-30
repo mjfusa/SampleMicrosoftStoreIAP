@@ -11,6 +11,8 @@ using WinRT;
 using WinRT.Interop;
 using Windows.UI.Core;
 using Microsoft.UI.Xaml.Navigation;
+using MSIAPSample.Views;
+using System.Diagnostics;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -21,6 +23,8 @@ namespace MSIAPSample
     /// </summary>
     public sealed partial class PurchasePage : Page
     {
+        public AddOnsView PurchaseAddOnsView { get => AddOnsView.Instance; }
+        private static bool bInitialized = false;
         public PurchasePage()
         {
             this.InitializeComponent();
@@ -33,72 +37,10 @@ namespace MSIAPSample
             var res = await WindowsStoreHelper.GetMSStorePurchaseToken(txtPurchaseToken.Text);
             txtMSIDPurchaseToken.Text = res;
         }
-        public ObservableCollection<StoreProductEx> UnmanagedConsumables = new ObservableCollection<StoreProductEx>();
-        public ObservableCollection<StoreProductEx> StoreManagedConsumables = new ObservableCollection<StoreProductEx>();
-        public ObservableCollection<StoreProductEx> Durables = new ObservableCollection<StoreProductEx>();
-        public ObservableCollection<StoreProductEx> Subscriptions = new ObservableCollection<StoreProductEx>();
         public UnmanagedUnitsRemaining TotalUnmanagedUnits = new UnmanagedUnitsRemaining();
         public Status status = new Status();
-        private bool mainWindowActivated=false;
         MenuFlyout lvUnmanagedConsumablesMenuFlyout;
-        private async void GetIAP()
-        {
-            Durables.Clear();
-            UnmanagedConsumables.Clear();
-            StoreManagedConsumables.Clear();
-            Subscriptions.Clear();
-
-            try
-            {
-                var storeProductQueryResultDurables = await WindowsStoreHelper.GetAllAddOns();
-                foreach (StoreProductEx product in storeProductQueryResultDurables.Values)
-                {
-                    switch (product.storeProduct.ProductKind)
-                    {
-                        case "Durable":
-                            foreach (var s in product.storeProduct.Skus)
-                            {
-                                if (s.IsSubscription)
-                                {
-                                    //var sp = await WindowsStoreHelper.GetPurchasedSubscriptionProductAsync(product.storeProduct.StoreId);
-                                    Subscriptions.Add(product); 
-                                }
-                                else
-                                {
-                                    Durables.Add(product);
-                                }
-                            }
-                            break;
-                        case "Consumable": // Store managed consumables
-                            var res = await WindowsStoreHelper.GetPurchasedStoreManagedConsumablesAsync();
-                            foreach (var s in res.Values)
-                            {
-                                if (s.storeProduct.StoreId == product.storeProduct.StoreId)
-                                {
-                                    product.storeManagedConsumableRemainingBalance = s.storeManagedConsumableRemainingBalance;
-                                    StoreManagedConsumables.Add(product);
-                                    break;
-                                }
-                            }
-                            break;
-                        case "UnmanagedConsumable": // Developer managed consumables
-                            UnmanagedConsumables.Add(product);
-                            break;
-                        default:
-                            ShowError("Unknown IAP ProductType");
-                            break;
-                    }
-                }
-                var balResult = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
-                TotalUnmanagedUnits.Total = balResult.ToString();
-                
-            }
-            catch (Exception err)
-            {
-                ShowError(err.Message);
-            }
-        }
-
+        
         private async void ShowError(string errorMsg)
         {
             var okCommand = new UICommand("OK", cmd => { return; });
@@ -126,7 +68,14 @@ namespace MSIAPSample
             try
             {
                 var res = await WindowsStoreHelper.FulfillConsumable(spex.storeProduct.StoreId, unitsToSpend);
-                GetIAP();
+                if (spex.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
+                {
+                    await PurchaseAddOnsView.UpdateConsumables();
+                }
+                if (spex.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
+                {
+                    await PurchaseAddOnsView.UpdateStoreManagedConsumables();
+                }
                 status.Text = res;
             }
             catch (Exception ex)
@@ -154,7 +103,14 @@ namespace MSIAPSample
                         {
                             ShowError(ex.Message);
                         }
-                        GetIAP();
+                        if (sp.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
+                        {
+                            await PurchaseAddOnsView.UpdateConsumables();
+                        }
+                        if (sp.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
+                        {
+                            await PurchaseAddOnsView.UpdateStoreManagedConsumables();
+                        }
                     });
                 }
                 else if (sp.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
@@ -170,7 +126,22 @@ namespace MSIAPSample
                     status.Text = res;
                     if (res.Contains("Succeeded"))
                     {
-                        GetIAP();
+                        switch (sp.storeProduct.ProductKind)
+                        {
+                            case AddOnKind.StoreManagedConsumable:
+                                await PurchaseAddOnsView.UpdateStoreManagedConsumables();
+                                break;
+                            case AddOnKind.DeveloperManagedConsumable:
+                                await PurchaseAddOnsView.UpdateConsumables();
+                                break;
+                            case AddOnKind.Durable:
+                                await PurchaseAddOnsView.UpdateDurables();
+                                break;
+                            default:
+                                Debug.Assert(false, "Unknown ProductKind in Purchase");
+                                break;
+
+                        }
                     }
                     else
                     {
@@ -216,13 +187,16 @@ namespace MSIAPSample
 
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs args)
+        private async void Page_Loaded(object sender, RoutedEventArgs args)
         {
-            if (!mainWindowActivated)
+            var aov = AddOnsView.Instance;
+            if (!bInitialized)
             {
                 WindowsStoreHelper.InitializeStoreContext();
-                GetIAP();
-                mainWindowActivated = true;
+                await aov.UpdateDurables();
+                await aov.UpdateConsumables();
+                await aov.UpdateStoreManagedConsumables();
+
                 foreach (var menuFlyoutItem in lvUnmanagedConsumablesMenuFlyout.Items)
                 {
                     if (menuFlyoutItem.Name == "showAllProperties")
@@ -230,7 +204,10 @@ namespace MSIAPSample
                         menuFlyoutItem.Tapped += menuFlyoutItem_Tapped;
                     }
                 }
+
+                bInitialized = true;
             }
+
         }
 
         private void menuFlyoutItem_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)

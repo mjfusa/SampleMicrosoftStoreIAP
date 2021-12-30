@@ -3,18 +3,16 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
 using WinRT;
-using System.Linq;
-using System.Text.Json;
-using Windows.UI.WebUI;
-using System.Collections.ObjectModel;
 
 namespace MSIAPHelper
 {
@@ -32,18 +30,13 @@ namespace MSIAPHelper
         {
             InitializeStoreContext();
         }
-        public const string ConstUnmangagedConsumable = "UnmanagedConsumable";
         private static StoreContext? _storeContext = null;
         private static StoreAppLicense _storeAppLicense = null;
         private static bool _isActive = false;
         private static bool _isTrial = false;
-        private static IDictionary<string, StoreProductEx> _storeManagedConsumables = new Dictionary<string, StoreProductEx>();
-        private static IDictionary<string, StoreProductEx> _ownedStoreManagedConsumables = new Dictionary<string, StoreProductEx>();
-
-        private static IDictionary<string, StoreProductEx> _ownedDeveloperManagedConsumables = new Dictionary<string, StoreProductEx>();
+        private static IDictionary<string, StoreProductEx> _Consumables = new Dictionary<string, StoreProductEx>();
+        private static IDictionary<string, StoreProductEx> _StoreManagedConsumables = new Dictionary<string, StoreProductEx>();
         private static IDictionary<string, StoreProductEx> _Durables = new Dictionary<string, StoreProductEx>();
-        private static IDictionary<string, StoreProductEx> _allAddOns = new Dictionary<string, StoreProductEx>();
-        private static IDictionary<string, StoreProductEx> _userSubs = new Dictionary<string, StoreProductEx>();
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int GetCurrentPackageFullName(ref int packageFullNameLength, ref StringBuilder packageFullName);
@@ -69,14 +62,25 @@ namespace MSIAPHelper
 
             foreach (var product in res.Products.Values)
             {
-                if (!_ownedStoreManagedConsumables.ContainsKey(product.StoreId))
+                if (!_StoreManagedConsumables.ContainsKey(product.StoreId))
                 {
-                    _ownedStoreManagedConsumables.Add(product.StoreId, new StoreProductEx(product));
+                    _StoreManagedConsumables.Add(product.StoreId, new StoreProductEx(product));
                     var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
-                    _ownedStoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = result.BalanceRemaining;
+                    _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = result.BalanceRemaining;
+                }
+                else
+                {
+                    var storeBal = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
+                    if (storeBal.BalanceRemaining != _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance)
+                    {
+                        _StoreManagedConsumables.Remove(product.StoreId);
+                        _StoreManagedConsumables[product.StoreId] = new StoreProductEx(product);
+                        //var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
+                        _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = storeBal.BalanceRemaining;
+                    }
                 }
             }
-            return _ownedStoreManagedConsumables;
+            return _StoreManagedConsumables;
         }
 
         public static void CheckIfSubscriptionIsInUserCollection()
@@ -125,7 +129,7 @@ namespace MSIAPHelper
         //    return checkIfUserHasSubscriptionAsync(subscriptionId).AsAsyncOperation();
         //}
 
-        public static IAsyncOperation<bool> CheckIfSubscriptionIsInUserCollection(string storeId)
+        public static IAsyncOperation<bool> IsSubscriptionIsInUserCollection(string storeId)
         {
             return checkIfSubscriptionIsInUserCollection(storeId).AsAsyncOperation();
         }
@@ -185,11 +189,11 @@ namespace MSIAPHelper
             return result;
 
         }
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync()
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync1()
         {
-            return getConsumablesAsync().AsAsyncOperation();
+            return getConsumablesAsync1().AsAsyncOperation();
         }
-        public static async Task<IDictionary<string, StoreProductEx>> getConsumablesAsync()
+        public static async Task<IDictionary<string, StoreProductEx>> getConsumablesAsync1()
         {
             string[] productKinds = { AddOnKind.DeveloperManagedConsumable };
             List<String> filterList = new List<string>(productKinds);
@@ -257,13 +261,13 @@ namespace MSIAPHelper
             }
             return devManagedConsumables;
         }
- 
 
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedDeveloperManagedConsumablesAsync()
+
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync()
         {
-            return getPurchasedDeveloperManagedConsumablesAsync().AsAsyncOperation();
+            return getConsumablesAsync().AsAsyncOperation();
         }
-        private static async Task<IDictionary<string, StoreProductEx>> getPurchasedDeveloperManagedConsumablesAsync()
+        private static async Task<IDictionary<string, StoreProductEx>> getConsumablesAsync()
         {
             string[] productKinds = { AddOnKind.DeveloperManagedConsumable };
             List<String> filterList = new List<string>(productKinds);
@@ -271,7 +275,7 @@ namespace MSIAPHelper
 
             foreach (var product in res.Products.Values)
             {
-                if (!_ownedDeveloperManagedConsumables.ContainsKey(product.StoreId))
+                if (!_Consumables.ContainsKey(product.StoreId))
                 {
                     if (product.IsInUserCollection)
                     {
@@ -280,7 +284,7 @@ namespace MSIAPHelper
                     }
 
                     var sp = new StoreProductEx(product);
-            
+
                     ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                     if (localSettings.Values.ContainsKey("Units" + product.StoreId))
                     {
@@ -329,15 +333,20 @@ namespace MSIAPHelper
                         sp.developerManagedConsumable = new DeveloperManagedConsumable(units, dmcKind);
 
                     }
-                    _ownedDeveloperManagedConsumables.Add(sp.storeProduct.StoreId, sp);
+                    _Consumables.Add(sp.storeProduct.StoreId, sp);
                 }
             }
-            return _ownedDeveloperManagedConsumables;
+            return _Consumables;
         }
 
-        public static IAsyncOperation<uint> GetStoreManagedConsumableBalanceAsync()
+        public static IAsyncOperation<uint> GetStoreManagedConsumableBalanceAsync(string StoreId)
         {
-            return getTotalUnmangedConsumableBalanceRemainingAsync().AsAsyncOperation();
+            return getStoreManagedConsumableBalanceAsync(StoreId).AsAsyncOperation();
+        }
+        public static async Task<uint> getStoreManagedConsumableBalanceAsync(string StoreId)
+        {
+            var result = await _storeContext.GetConsumableBalanceRemainingAsync(StoreId);
+            return result.BalanceRemaining;
         }
 
         public static IAsyncOperation<uint> GetTotalUnmangedConsumableBalanceRemainingAsync()
@@ -367,8 +376,8 @@ namespace MSIAPHelper
 
         public static IAsyncOperation<string> SpendConsumable(string StoreId, uint unitsToSpend = 1)
         {
-            var product = GetConsumableProduct(StoreId);
-            if (product.ProductKind == AddOnKind.StoreManagedConsumable)
+            var product = GetProduct(StoreId);
+            if (product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
             {
                 return fulfillConsumable(StoreId, unitsToSpend).AsAsyncOperation();
             }
@@ -379,12 +388,12 @@ namespace MSIAPHelper
         }
         private static async Task<string> spendDeveloperManagedConsumable(string StoreId, uint unitsToFulfill)
         {
-            var product = GetConsumableProduct(StoreId);
+            var product = GetProduct(StoreId);
             if (TotalUnmangedUnitsRemaining < unitsToFulfill)
             {
                 throw new Exception("Insufficient units");
             }
-            if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
+            if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
             {
 
                 TotalUnmangedUnitsRemaining -= unitsToFulfill;
@@ -418,17 +427,15 @@ namespace MSIAPHelper
         }
         private static async Task<string> fulfillConsumable(string StoreId, uint unitsToSpend)
         {
-            StoreProduct? product = null;
-
-            Debug.Assert(_allAddOns[StoreId].storeProduct.ProductKind != AddOnKind.Durable);
-
-            product = GetConsumableProduct(StoreId);
+            var product = GetProduct(StoreId);
 
             Debug.Assert(product != null);
+            Debug.Assert(product.storeProduct.ProductKind != AddOnKind.Durable);
+
             StoreConsumableResult? res = null;
-            if (product.IsInUserCollection)
+            if (product.storeProduct.IsInUserCollection)
             {
-                if (product.ProductKind == AddOnKind.DeveloperManagedConsumable || product.ProductKind == AddOnKind.StoreManagedConsumable)
+                if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable || product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
                 {
                     ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                     Guid strTrackingId = Guid.NewGuid();
@@ -441,7 +448,7 @@ namespace MSIAPHelper
                         localSettings.Values[key: StoreId] = strTrackingId;
                     }
                     uint unitsToFulfill = unitsToSpend;
-                    if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
+                    if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
                     {
                         unitsToFulfill = 1;
                     }
@@ -462,7 +469,7 @@ namespace MSIAPHelper
             }
 
             string result = "Fulfilment error";
-            if (product.ProductKind == AddOnKind.StoreManagedConsumable)
+            if (product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
                 result = (res != null) ? $"Consumable Balance remaining {res.BalanceRemaining}" : result;
             else
                 result = (res != null) ? $"Consumable status: {res.Status}" : result;
@@ -470,181 +477,13 @@ namespace MSIAPHelper
             return $"{result}";
 
         }
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedStoreManagedConsumablesAsync()
+
+        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetDurables()
         {
-            return getPurchasedStoreManagedConsumablesAsync().AsAsyncOperation();
-        }
-        public static async Task<IDictionary<string, StoreProductEx>> getPurchasedStoreManagedConsumablesAsync()
-        {
-            string[] productKinds = { AddOnKind.StoreManagedConsumable };
-            List<String> filterList = new List<string>(productKinds);
-            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-
-            foreach (var product in res.Products.Values)
-            {
-                if (!_ownedStoreManagedConsumables.ContainsKey(product.StoreId))
-                {
-                    _ownedStoreManagedConsumables.Add(product.StoreId, new StoreProductEx(product));
-                    var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
-                    _ownedStoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = result.BalanceRemaining;
-                }
-
-
-            }
-            return _ownedStoreManagedConsumables;
-
+            return getDurables().AsAsyncOperation();
         }
 
-        private static DeveloperManagedConsumable.Kind GetUnmanagedCosumableKind(StoreProduct p)
-        {
-            var product = _allAddOns[p.StoreId];
-            var result = "";
-            if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
-            {
-                var arr = product.storeProduct.InAppOfferToken.Split(' ');
-                if (arr.Count() > 1)
-                {
-                    result = arr[1];
-                }
-                switch (result.ToLower())
-                {
-                    case "coin":
-                        return DeveloperManagedConsumable.Kind.Coins;
-                    case "coins":
-                        return DeveloperManagedConsumable.Kind.Coins;
-                    default:
-                        return DeveloperManagedConsumable.Kind.Unknown;
-                }
-            }
-            return DeveloperManagedConsumable.Kind.Unknown;
-        }
-        private static uint GetUnmanagedUnits(StoreProduct p)
-        {
-            var product = _allAddOns[p.StoreId];
-            if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
-            {
-                int i = 0;
-                int iResult = 0;
-                while (int.TryParse(product.storeProduct.InAppOfferToken.AsSpan(i, 1), out iResult))
-                {
-                    i++;
-                }
-                if (i == 0)
-                {
-                    return 100;
-                }
-                else
-                {
-                    return UInt32.Parse(product.storeProduct.InAppOfferToken.Substring(0, i));
-                }
-            }
-            return 0;
-        }
-
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetAllAddOns()
-        {
-            return getAllAddOns().AsAsyncOperation();
-        }
-
-
-
-        private static async Task<IDictionary<string, StoreProductEx>> getAllAddOns()
-        {
-            _allAddOns.Clear();
-            string[] productKinds = { AddOnKind.StoreManagedConsumable, AddOnKind.Durable, AddOnKind.DeveloperManagedConsumable };
-            List<String> filterList = new List<string>(productKinds);
-            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-
-            if (res.ExtendedError != null)
-            {
-                throw new Exception(ReportError((uint)res.ExtendedError.HResult));
-            }
-
-            foreach (var product in res.Products.Values)
-            {
-                var sp = new StoreProductEx(product);
-                if (product.ProductKind == AddOnKind.DeveloperManagedConsumable)
-                {
-                    if (product.IsInUserCollection)
-                    {
-                        // This consumable has not been fulfilled! There was an error in purchase flow
-                        Debug.Assert(false);
-                    }
-
-                    ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-                    if (localSettings.Values.ContainsKey("Units" + product.StoreId))
-                    {
-                        var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
-                        sp.developerManagedConsumable = deSer;
-                    }
-                    else
-                    {
-                        int i = 0;
-                        int iResult;
-                        while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
-                        {
-                            i++;
-                        }
-                        uint units;
-                        if (i == 0)
-                        {
-                            units = 100;
-                        }
-                        else
-                        {
-                            units = uint.Parse(product.InAppOfferToken.Substring(0, i));
-                        }
-
-
-                        DeveloperManagedConsumable.Kind dmcKind = DeveloperManagedConsumable.Kind.Unknown;
-                        var result = "";
-                        var arr = product.InAppOfferToken.Split(' ');
-                        if (arr.Count() > 1)
-                        {
-                            result = arr[1];
-                        }
-                        switch (result.ToLower())
-                        {
-                            case "coin":
-                                dmcKind = DeveloperManagedConsumable.Kind.Coins;
-                                break;
-                            case "coins":
-                                dmcKind = DeveloperManagedConsumable.Kind.Coins;
-                                break;
-                            default:
-                                dmcKind = DeveloperManagedConsumable.Kind.Unknown;
-                                break;
-                        }
-
-                        sp.developerManagedConsumable = new DeveloperManagedConsumable(units, dmcKind);
-
-                    }
-                    //TotalUnmangedUnitsRemaining += sp.developerManagedConsumable.UnmanagedUnitsRemaining;
-
-                }
-                else if (product.ProductKind == AddOnKind.Durable)
-                {
-                    if (product.Skus[0].IsSubscription)
-                    {
-                        var result = await ProcessSubscription(product.StoreId, sp);
-                        sp = result;
-                    }
-                }
-
-
-                _allAddOns.Add(product.StoreId, sp);
-            }
-            return _allAddOns;
-        }
-
-
-
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetAllDurables()
-        {
-            return getAllDurables().AsAsyncOperation();
-        }
-
-        private static async Task<IDictionary<string, StoreProductEx>> getAllDurables()
+        private static async Task<IDictionary<string, StoreProductEx>> getDurables()
         {
             string[] productKinds = { AddOnKind.Durable };
             List<String> filterList = new List<string>(productKinds);
@@ -654,67 +493,23 @@ namespace MSIAPHelper
             {
                 if (!_Durables.ContainsKey(product.StoreId))
                 {
+
                     _Durables.Add(product.StoreId, new StoreProductEx(product));
-                    var bal = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
-                    _Durables[product.StoreId].storeManagedConsumableRemainingBalance = bal.BalanceRemaining;
+                }
+                else
+                {
+                    if (_Durables[product.StoreId].storeProduct.IsInUserCollection != product.IsInUserCollection)
+                    {
+                        _Durables.Remove(product.StoreId);
+                        _Durables.Add(product.StoreId, new StoreProductEx(product));
+                    }
                 }
             }
 
             return _Durables;
         }
 
-
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedDurables()
-        {
-            return getPurchasedDurables().AsAsyncOperation();
-        }
-
-        private static async Task<IDictionary<string, StoreProductEx>> getPurchasedDurables()
-        {
-            IDictionary<string, StoreProductEx> result = new Dictionary<string, StoreProductEx>();
-            if (_allAddOns.Count == 0)
-            {
-                await GetAllAddOns();
-            }
-            foreach (var a in _allAddOns)
-            {
-                if ((a.Value.storeProduct.IsInUserCollection) && (a.Value.storeProduct.ProductKind == "Durable"))
-                {
-                    result.Add(a);
-                }
-            }
-            return result;
-        }
-
         public static uint TotalUnmangedUnitsRemaining { get; private set; }
-
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetPurchasedSubscriptionProductAsync()
-        {
-            return getPurchasedSubscriptionProductAsync().AsAsyncOperation();
-        }
-        private static async Task<IDictionary<string, StoreProductEx>> getPurchasedSubscriptionProductAsync()
-        {
-            // Load the sellable add-ons for this app and check if the trial is still 
-            // available for this customer. If they previously acquired a trial they won't 
-            // be able to get a trial again, and the StoreProduct.Skus property will 
-            // only contain one SKU.
-
-            foreach (var a in _allAddOns)
-            {
-                if (a.Value.SubscriptionIsInUserCollection == true)
-                {
-                    if (!_userSubs.ContainsKey(a.Value.storeProduct.StoreId))
-                    {
-                        _userSubs.Add(a);
-                    }
-                }
-            }
-
-
-            return _userSubs;
-        }
-
-
         public static IAsyncOperation<string> Purchase(string StoreId)
         {
             return purchase(StoreId).AsAsyncOperation();
@@ -738,9 +533,10 @@ namespace MSIAPHelper
                 return $"{result.Status}";
             }
 
-            if (_allAddOns[StoreId].storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
+            var product = GetProduct(StoreId);
+
+            if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
             {
-                var product = _allAddOns[StoreId];
                 product.developerManagedConsumable.UnmanagedUnitsRemaining += product.developerManagedConsumable.Units;
                 TotalUnmangedUnitsRemaining += product.developerManagedConsumable.UnmanagedUnitsRemaining;
 
@@ -750,22 +546,32 @@ namespace MSIAPHelper
                 localSettings.Values["TotalUnits"] = TotalUnmangedUnitsRemaining;
                 await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, Guid.NewGuid());
             }
-
             return $"{result.Status}";
         }
 
-        private static StoreProduct GetConsumableProduct(string StoreId)
+        private static StoreProductEx GetProduct(string StoreId)
         {
-            StoreProduct? product = null;
-            if (_allAddOns.ContainsKey(StoreId))
+            StoreProductEx? product = null;
+            if (_Consumables.ContainsKey(StoreId))
             {
-                product = _allAddOns[StoreId].storeProduct;
+                product = _Consumables[StoreId];
+                return product;
+            }
+
+            if (_StoreManagedConsumables.ContainsKey(StoreId))
+            {
+                product = _StoreManagedConsumables[StoreId];
+                return product;
+            }
+
+            if (_Durables.ContainsKey(StoreId))
+            {
+                product = _Durables[StoreId];
                 return product;
             }
 
             return product;
         }
-
         public static IAsyncOperation<string> GetMSStorePurchaseToken(string purchaseToken)
         {
             return getMSStorePurchaseToken(purchaseToken).AsAsyncOperation();
@@ -815,15 +621,6 @@ namespace MSIAPHelper
         public StoreProductEx(StoreProduct product)
         {
             _storeProduct = product;
-            //if ((_storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable) && _storeProduct.IsInUserCollection)
-            //{
-            //    ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-            //    if (localSettings.Values.ContainsKey("Units" + product.StoreId))
-            //    {
-            //        var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
-            //        developerManagedConsumable = new DeveloperManagedConsumable(deSer.UnmanagedUnitsRemaining, deSer.dmcKind);
-            //    }
-            //}
         }
 
         public DeveloperManagedConsumable developerManagedConsumable;

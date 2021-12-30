@@ -35,8 +35,7 @@ namespace MSIAPSample
 
 
         public AddOnsView InventoryAddOnsView { get => AddOnsView.Instance; }
-
-
+        
         private static bool bInitialized = false;
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
@@ -51,7 +50,7 @@ namespace MSIAPSample
 
             lvDurables.ItemsSource = aov.AcvOwnedDurables;
             gvSubscriptions.ItemsSource = aov.AcvOwnedSubscriptions;
-            gvUnmanagedConsumables.ItemsSource = aov.Consumables;
+            //gvUnmanagedConsumables.ItemsSource = aov.Consumables;
             gvStoreManagedConsumables.ItemsSource = aov.AcvOwnedStoreManagedConsumables;
 
         }

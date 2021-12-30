@@ -24,7 +24,7 @@
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
                       RelativePanel.Below="tbAnchor"    
-                      ItemsSource="{x:Bind Durables,Mode=OneWay}"  >
+                      ItemsSource="{x:Bind PurchaseAddOnsView.Durables,Mode=OneWay}"  >
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" 
@@ -72,10 +72,10 @@
 
                 <GridView Grid.Row="1" Grid.Column="1" RelativePanel.Below="lvDurables" x:Name="lvUnmanagedConsumables" Background="AntiqueWhite" 
                       Header=" Developer Managed Consumables"
-                      Footer="{x:Bind TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}"
+                      Footer="{x:Bind PurchaseAddOnsView.TotalUnmanagedUnits.TotalFormatted, Mode=OneWay}"
                       ItemClick="DoPurchase_ItemClick"
                           IsItemClickEnabled="True"
-                      ItemsSource="{x:Bind UnmanagedConsumables, Mode=OneWay}"  Margin="0,0,0,10">
+                      ItemsSource="{x:Bind PurchaseAddOnsView.Consumables, Mode=OneWay}"  Margin="0,0,0,10">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" Margin="5,0,0,0"
@@ -105,7 +105,7 @@
                       Header="Store Managed Consumables"
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
-                      ItemsSource="{x:Bind StoreManagedConsumables, Mode=OneWay}"  Margin="0,0,0,10">
+                      ItemsSource="{x:Bind PurchaseAddOnsView.StoreManagedConsumables, Mode=OneWay}"  Margin="0,0,0,10">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" 
@@ -136,7 +136,7 @@
                       Header="Subscriptions"
                       ItemClick="DoPurchase_ItemClick"
                       IsItemClickEnabled="True"
-                      ItemsSource="{x:Bind Subscriptions, Mode=OneWay}" Margin="0,0,0,10">
+                      ItemsSource="{x:Bind PurchaseAddOnsView.Subscriptions, Mode=OneWay}" Margin="0,0,0,10">
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F1" CornerRadius="5" MaxWidth="250"

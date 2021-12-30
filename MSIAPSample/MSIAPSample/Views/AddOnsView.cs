@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.WinUI.UI;
+using CommunityToolkit.WinUI.UI.Media;
 using Microsoft.UI.Xaml.Data;
 using MSIAPHelper;
 using System;
@@ -21,11 +22,11 @@ namespace MSIAPSample.Views
 
         }
 
-        private  ObservableCollection<StoreProductEx> durables = new ObservableCollection<StoreProductEx>();
-        private ObservableCollection<StoreProductEx> subscriptions = new ObservableCollection<StoreProductEx>();
-        private ObservableCollection<StoreProductEx> consumables = new ObservableCollection<StoreProductEx>();
-        private  UnmanagedUnitsRemaining totalUnmanagedUnits = new UnmanagedUnitsRemaining();
-        private ObservableCollection<StoreProductEx> storeManagedConsumables = new ObservableCollection<StoreProductEx>();
+        private static ObservableCollection<StoreProductEx> durables = new ObservableCollection<StoreProductEx>();
+        private static ObservableCollection<StoreProductEx> subscriptions = new ObservableCollection<StoreProductEx>();
+        private static ObservableCollection<StoreProductEx> consumables = new ObservableCollection<StoreProductEx>();
+        private UnmanagedUnitsRemaining totalUnmanagedUnits = new UnmanagedUnitsRemaining();
+        private static ObservableCollection<StoreProductEx> storeManagedConsumables = new ObservableCollection<StoreProductEx>();
 
         public bool bInitialized = false;
 
@@ -56,30 +57,52 @@ namespace MSIAPSample.Views
         {
             
             var sManagedConsumables = await WindowsStoreHelper.GetStoreManagedConsumablesAsync();
-            
+
+            List<StoreProductEx> updateSP = null;
             foreach (var s in sManagedConsumables.Values)
             {
-                if (!StoreManagedConsumables.Contains(s)) 
-                { 
+                if (!StoreManagedConsumables.Contains(s))
+                {
+                    var remBal = await WindowsStoreHelper.getStoreManagedConsumableBalanceAsync(s.storeProduct.StoreId);
+                    var i = StoreManagedConsumables.Where(x => x.storeManagedConsumableRemainingBalance != remBal);
+                    updateSP = i.ToList();
+                    if (updateSP != null && updateSP.Any())
+                    {
+                        var res = StoreManagedConsumables.Where(x => x.storeProduct.StoreId == updateSP[0].storeProduct.StoreId).ToList();
+                        StoreManagedConsumables.Remove(res[res.Count - 1]);
+                    }
                     StoreManagedConsumables.Add(s);
+                } else
+                {
+                    var i = StoreManagedConsumables.IndexOf(s);
+                    var storeBal = await WindowsStoreHelper.GetStoreManagedConsumableBalanceAsync(s.storeProduct.StoreId);
+                    if (StoreManagedConsumables[i].storeManagedConsumableRemainingBalance != storeBal)
+                    {
+                        StoreManagedConsumables.RemoveAt(i);
+                        StoreManagedConsumables.Add(s);
+                    }
+
                 }
             }
+
+         
+
 
             return true;
         }
         public async Task<bool> UpdateConsumables()
         {
             var devManagedConsumables = await WindowsStoreHelper.GetConsumablesAsync();
-            foreach (var s in devManagedConsumables.Values)
+            foreach (var s in devManagedConsumables)
             {
                 // Note these should not be added to inventory page. They will appear if that they have not been fulfilled.
                 // In this sample, consumables are immediately fulfiled.
-                if (!Consumables.Contains(s))
+                if (!Consumables.Contains(s.Value))
                 {
-                    if (s.storeProduct.IsInUserCollection)
-                    {
-                        Consumables.Add(s);
-                    }
+                    //if (s.Value.storeProduct.IsInUserCollection)
+                    //{
+                        Consumables.Add(s.Value);
+                    //}
                 }
             }
             var balResult = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
@@ -89,25 +112,53 @@ namespace MSIAPSample.Views
         }
         public async Task<bool> UpdateDurables()
         {
-            var durables = await WindowsStoreHelper.GetAllDurables();
+            var durables = await WindowsStoreHelper.GetDurables();
             foreach (var d in durables)
             {
                 if (d.Value.storeProduct.Skus[0].IsSubscription)
                 {
                     if (!Subscriptions.Contains(d.Value))
                     {
-                        Subscriptions.Add(d.Value);
-                        var res = await WindowsStoreHelper.CheckIfSubscriptionIsInUserCollection(d.Value.storeProduct.StoreId);
-                        if (true == res)
+                        var bRes = await WindowsStoreHelper.IsSubscriptionIsInUserCollection(d.Value.storeProduct.StoreId);
+                        d.Value.SubscriptionIsInUserCollection = bRes;
+                        var res = Subscriptions.Where(x => x.storeProduct.StoreId == d.Value.storeProduct.StoreId).ToList();
+                        if (res.Count > 0)
                         {
-                            d.Value.SubscriptionIsInUserCollection = true;
+                            Subscriptions.Remove(res[res.Count - 1]);
                         }
+                        Subscriptions.Add(d.Value);
                     }
                 } else
                 {
+                    StoreProductEx temp=null;
                     if (!Durables.Contains(d.Value))
                     {
+                        var res = Durables.Where(x => x.storeProduct.StoreId == d.Value.storeProduct.StoreId).ToList();
+                        if (res.Count > 0)
+                        {
+                            Durables.Remove(res[res.Count - 1]);
+                        }
                         Durables.Add(d.Value);
+
+                    }
+                    else
+                    {
+                        foreach (var dl in Durables)
+                        {
+                            if (dl.storeProduct.StoreId == d.Value.storeProduct.StoreId)
+                            {
+                                if (dl.storeProduct.IsInUserCollection != d.Value.storeProduct.IsInUserCollection)
+                                {
+                                    temp = dl;
+                                    break;
+                                }
+                            }
+                        }
+                        if (temp != null)
+                        {
+                            Durables.Remove(temp);
+                            Durables.Add(d.Value);
+                        }
                     }
                 }
 
@@ -123,6 +174,7 @@ namespace MSIAPSample.Views
             AcvOwnedStoreManagedConsumables = new AdvancedCollectionView(storeManagedConsumables);
             AcvOwnedStoreManagedConsumables.Filter = x => ((StoreProductEx)x).storeProduct.IsInUserCollection == true;
 
+            
             return true;
         }
     }
