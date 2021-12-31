@@ -32,26 +32,11 @@ namespace MSIAPSample
             var res = await WindowsStoreHelper.GetMSStorePurchaseToken(txtPurchaseToken.Text);
             txtMSIDPurchaseToken.Text = res;
         }
+
         public UnmanagedUnitsRemaining TotalUnmanagedUnits = new UnmanagedUnitsRemaining();
         public Status status = new Status();
         MenuFlyout lvUnmanagedConsumablesMenuFlyout;
         
-        private async void ShowError(string errorMsg)
-        {
-            var okCommand = new UICommand("OK", cmd => { return; });
-            MessageDialog md = new MessageDialog($"{errorMsg}");
-
-            IInitializeWithWindow initWindow = ((object)md).As<IInitializeWithWindow>();
-            var hwnd = (long)System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
-            initWindow.Initialize(hwnd);
-
-            md.Title = "An error occurred";
-            md.Options = MessageDialogOptions.None;
-            md.Commands.Add(okCommand);
-            await md.ShowAsync();
-
-        }
-
         private async void Button_GetStoreIdCollections_Click(object sender, RoutedEventArgs e)
         {
             var res = await WindowsStoreHelper.GetMSStoreCollectionsToken(txtCollectionsToken.Text);
@@ -75,7 +60,7 @@ namespace MSIAPSample
             }
             catch (Exception ex)
             {
-                ShowError(ex.Message);
+                UIHelpers.ShowError(ex.Message);
             }
         }
 
@@ -96,7 +81,7 @@ namespace MSIAPSample
                         }
                         catch (Exception ex)
                         {
-                            ShowError(ex.Message);
+                            UIHelpers.ShowError(ex.Message);
                         }
                         if (sp.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
                         {
@@ -140,7 +125,7 @@ namespace MSIAPSample
                     }
                     else
                     {
-                        ShowError(res);
+                        UIHelpers.ShowError(res);
                     }
                 });
             var cancelCommand = new UICommand("Cancel", cmd => { return; });
@@ -176,7 +161,7 @@ namespace MSIAPSample
             }
             catch (Exception ex)
             {
-                ShowError(ex.Message);
+                UIHelpers.ShowError(ex.Message);
             }
 
 
