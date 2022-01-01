@@ -39,7 +39,12 @@ namespace MSIAPSample
         
         private async void Button_GetStoreIdCollections_Click(object sender, RoutedEventArgs e)
         {
-            var res = await WindowsStoreHelper.GetMSStoreCollectionsToken(txtCollectionsToken.Text);
+
+
+            //var res = await WindowsStoreHelper.GetMSStoreCollectionsToken(txtCollectionsToken.Text);
+            var res = await WindowsStoreHelper.GetMSStoreCollectionsToken();
+
+
             txtMSIDCollectionsToken.Text = res;
         }
 

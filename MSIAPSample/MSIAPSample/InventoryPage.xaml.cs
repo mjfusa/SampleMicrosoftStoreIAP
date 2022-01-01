@@ -47,6 +47,8 @@ namespace MSIAPSample
 
         private void btnPurchaseNav_Click(object sender, RoutedEventArgs e)
         {
+            var res = WindowsStoreHelper.GetProductsFromService();
+            
             var navigation = (Application.Current as App).Navigation;
             var purchaseItem = navigation.GetNavigationViewItems(typeof(MSIAPSample.PurchasePage)).First();
             navigation.SetCurrentNavigationViewItem(purchaseItem);

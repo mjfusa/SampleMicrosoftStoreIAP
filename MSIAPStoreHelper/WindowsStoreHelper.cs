@@ -1,16 +1,20 @@
 ﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using MSIAPHelper.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
+using Windows.ApplicationModel.Store;
 using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -26,12 +30,14 @@ namespace MSIAPHelper
         void Initialize(long hwnd);
     }
 
+
     public sealed class WindowsStoreHelper
     {
         static WindowsStoreHelper()
         {
             InitializeStoreContext();
         }
+        public static string UserId = ""; // userId == App Receipt Id
         private static StoreContext? _storeContext = null;
         private static StoreAppLicense _storeAppLicense = null;
         private static bool _isActive = false;
@@ -84,9 +90,9 @@ namespace MSIAPHelper
             return _StoreManagedConsumables;
         }
 
-        public static bool InitializeStoreContext()
+        public static async Task<bool> InitializeStoreContext()
         {
-
+         
             Debug.WriteLine("StoreContext.GetDefault...");
             //if (_storeContext == null)
             //{
@@ -94,14 +100,21 @@ namespace MSIAPHelper
             IInitializeWithWindow initWindow = ((object)_storeContext).As<IInitializeWithWindow>(); ;
             var hwnd = (long)System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
             initWindow.Initialize(hwnd); // TODO Temp workaround
-                                         //if (hwnd != 0)
-                                         //{
-                                         //    initWindow.Initialize(hwnd);
-                                         //} else
-                                         //{
-                                         //    _storeContext = null;
-                                         //}
-                                         //}
+
+            var AppReceipt = await CurrentApp.GetAppReceiptAsync();
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(AppReceipt);
+            XmlNode node = xmlDoc.DocumentElement;
+            var cn = node.ChildNodes;
+            foreach (XmlNode node2 in cn)
+            {
+                if (node2.Name == "AppReceipt")
+                {
+                    UserId = node2.Attributes["Id"].Value;
+                    break;
+                }
+            }  
+
 
             return _storeContext != null;
         }
@@ -587,6 +600,58 @@ namespace MSIAPHelper
         public static IAsyncOperation<string> GetMSStoreCollectionsToken(string collectionsToken)
         {
             return getMSStoreCollectionsToken(collectionsToken).AsAsyncOperation();
+        }
+
+        public static IAsyncOperation<string> GetMSStoreCollectionsToken()
+        {
+            var CollectionsToken = GetCollectionsTokenFromService().AsAsyncOperation();
+            return CollectionsToken;
+            
+            //return getMSStoreCollectionsToken(collectionsToken).AsAsyncOperation();
+        }
+
+        public static IAsyncOperation<string> GetProductsFromService()
+        {
+           return getProductsFromService().AsAsyncOperation();
+        }
+        private static async Task<string> getProductsFromService()
+        {
+            var CollectionsToken = await GetCollectionsTokenFromService(); 
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
+            var data = new StringContent($"{{\"UserCollectionsId\":\"{CollectionsToken}\"}}", Encoding.UTF8, "application/json");
+
+            
+            var response = await client.PostAsync(new Uri("https://localhost:5001/collections/query"), data);
+            //ClientAccessTokensResponse accessTokens = null;
+
+            return "";
+        }
+
+        private static async Task<string> GetCollectionsTokenFromService()
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
+            var response = await client.GetAsync(new Uri("https://localhost:5001/collections/RetrieveAccessTokens"));
+            ClientAccessTokensResponse accessTokens =null;
+            if (response.StatusCode==System.Net.HttpStatusCode.OK)
+            {
+                var tokenContent=await response.Content.ReadAsStringAsync();
+                accessTokens = JsonSerializer.Deserialize<ClientAccessTokensResponse>(tokenContent);
+            }
+            if (accessTokens==null)
+            {
+                return "";
+            } else
+            {
+                foreach(var token in accessTokens.AccessTokens)
+                {
+                    if (token.Audience.Contains("collections"))
+                        return token.Token;
+                }
+                return "";
+            }
+
         }
 
         private static async Task<string> getMSStoreCollectionsToken(string collectionsToken)
