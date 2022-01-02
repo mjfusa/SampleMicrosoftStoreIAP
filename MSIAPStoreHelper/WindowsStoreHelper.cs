@@ -19,6 +19,9 @@ using Windows.Foundation;
 using Windows.Services.Store;
 using Windows.Storage;
 using WinRT;
+using Microsoft.StoreServices;
+using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 
 namespace MSIAPHelper
 {
@@ -133,11 +136,6 @@ namespace MSIAPHelper
             return _isActive;
         }
 
-        //public static IAsyncOperation<bool> CheckIfUserHasSubscriptionAsync(string subscriptionId)
-        //{
-        //    return checkIfUserHasSubscriptionAsync(subscriptionId).AsAsyncOperation();
-        //}
-
         public static IAsyncOperation<bool> IsSubscriptionIsInUserCollection(string storeId)
         {
             return checkIfSubscriptionIsInUserCollection(storeId).AsAsyncOperation();
@@ -161,117 +159,6 @@ namespace MSIAPHelper
             // The customer does not have a license to the subscription.
             return false;
         }
-
-
-        //private static async Task<StoreProductEx> ProcessSubscription(string subscriptionId, StoreProductEx sp)
-        //{
-        //    StoreAppLicense appLicense = await _storeContext.GetAppLicenseAsync();
-        //    StoreProductEx result = sp;
-        //    // Check if the customer has the rights to the subscription.
-        //    foreach (var addOnLicense in appLicense.AddOnLicenses)
-        //    {
-        //        StoreLicense license = addOnLicense.Value;
-        //        if (license.SkuStoreId.StartsWith(subscriptionId))
-        //        {
-        //            result.SubscriptionIsInUserCollection.Value = false;
-        //            if (license.IsActive)
-        //            {
-        //                // The expiration date is available in the license.ExpirationDate property.
-        //                var baseTime = license.ExpirationDate;
-        //                try
-        //                {
-        //                    var tzLocal = TimeZoneInfo.Local;
-        //                    var timeLocal = TimeZoneInfo.ConvertTimeFromUtc(baseTime.DateTime, tzLocal);
-        //                    result.ExpirationDate = timeLocal.ToShortDateString() + " " + timeLocal.ToShortTimeString();
-        //                }
-        //                catch (TimeZoneNotFoundException)
-        //                {
-        //                    result.ExpirationDate = baseTime.DateTime.ToShortDateString() + " " + baseTime.DateTime.ToShortTimeString();
-        //                    Console.WriteLine("Unable to create DateTimeOffset based on U.S. Central Standard Time.");
-        //                }
-        //                result.SubscriptionIsInUserCollection.Value = true;
-        //                return result;
-        //            }
-        //        }
-        //    }
-        //    // The customer does not have a license to the subscription.
-        //    return result;
-
-        //}
-        public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync1()
-        {
-            return getConsumablesAsync1().AsAsyncOperation();
-        }
-        public static async Task<IDictionary<string, StoreProductEx>> getConsumablesAsync1()
-        {
-            string[] productKinds = { AddOnKind.DeveloperManagedConsumable };
-            List<String> filterList = new List<string>(productKinds);
-            var res = await _storeContext.GetAssociatedStoreProductsAsync(filterList);
-
-            var devManagedConsumables = new Dictionary<string, StoreProductEx>();
-            foreach (var product in res.Products.Values)
-            {
-                if (product.IsInUserCollection)
-                {
-                    // This consumable has not been fulfilled! There was an error in purchase flow
-                    Debug.Assert(false);
-                }
-                var sp = new StoreProductEx(product);
-
-                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-                if (localSettings.Values.ContainsKey("Units" + product.StoreId))
-                {
-                    var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
-                    sp.developerManagedConsumable = deSer;
-                }
-                else
-                {
-                    int i = 0;
-                    int iResult;
-                    while (int.TryParse(product.InAppOfferToken.AsSpan(i, 1), out iResult))
-                    {
-                        i++;
-                    }
-                    uint units;
-                    if (i == 0)
-                    {
-                        units = 100;
-                    }
-                    else
-                    {
-                        units = uint.Parse(product.InAppOfferToken.Substring(0, i));
-                    }
-
-
-                    DeveloperManagedConsumable.Kind dmcKind = DeveloperManagedConsumable.Kind.Unknown;
-                    var result = "";
-                    var arr = product.InAppOfferToken.Split(' ');
-                    if (arr.Count() > 1)
-                    {
-                        result = arr[1];
-                    }
-                    switch (result.ToLower())
-                    {
-                        case "coin":
-                            dmcKind = DeveloperManagedConsumable.Kind.Coins;
-                            break;
-                        case "coins":
-                            dmcKind = DeveloperManagedConsumable.Kind.Coins;
-                            break;
-                        default:
-                            dmcKind = DeveloperManagedConsumable.Kind.Unknown;
-                            break;
-                    }
-
-                    sp.developerManagedConsumable = new DeveloperManagedConsumable(units, dmcKind);
-
-                }
-                devManagedConsumables.Add(sp.storeProduct.StoreId, sp);
-            }
-            return devManagedConsumables;
-        }
-
-
         public static IAsyncOperation<IDictionary<string, StoreProductEx>> GetConsumablesAsync()
         {
             return getConsumablesAsync().AsAsyncOperation();
@@ -297,7 +184,7 @@ namespace MSIAPHelper
                     ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                     if (localSettings.Values.ContainsKey("Units" + product.StoreId))
                     {
-                        var deSer = JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
+                        var deSer = System.Text.Json.JsonSerializer.Deserialize<DeveloperManagedConsumable>((localSettings.Values["Units" + product.StoreId]) as string);
                         sp.developerManagedConsumable = deSer;
                     }
                     else
@@ -555,7 +442,7 @@ namespace MSIAPHelper
                 TotalUnmangedUnitsRemaining += product.developerManagedConsumable.UnmanagedUnitsRemaining;
 
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings; // todo save to cloud
-                var ser = JsonSerializer.Serialize(product.developerManagedConsumable);
+                var ser = System.Text.Json.JsonSerializer.Serialize(product.developerManagedConsumable);
                 localSettings.Values["Units" + StoreId] = ser;
                 localSettings.Values["TotalUnits"] = TotalUnmangedUnitsRemaining;
                 await _storeContext.ReportConsumableFulfillmentAsync(StoreId, 1, Guid.NewGuid());
@@ -602,12 +489,11 @@ namespace MSIAPHelper
             return getMSStoreCollectionsToken(collectionsToken).AsAsyncOperation();
         }
 
-        public static IAsyncOperation<string> GetMSStoreCollectionsToken()
+        public static async Task<string> GetMSStoreCollectionsToken()
         {
-            var CollectionsToken = GetCollectionsTokenFromService().AsAsyncOperation();
-            return CollectionsToken;
-            
-            //return getMSStoreCollectionsToken(collectionsToken).AsAsyncOperation();
+            var collectionsToken = await getCollectionsTokenFromService();
+            var res = await getMSStoreCollectionsToken(collectionsToken);
+            return res;
         }
 
         public static IAsyncOperation<string> GetProductsFromService()
@@ -616,19 +502,66 @@ namespace MSIAPHelper
         }
         private static async Task<string> getProductsFromService()
         {
-            var CollectionsToken = await GetCollectionsTokenFromService(); 
+            var CollectionsToken = await GetMSStoreCollectionsToken(); 
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
             var data = new StringContent($"{{\"UserCollectionsId\":\"{CollectionsToken}\"}}", Encoding.UTF8, "application/json");
 
             
             var response = await client.PostAsync(new Uri("https://localhost:5001/collections/query"), data);
-            //ClientAccessTokensResponse accessTokens = null;
+            
+            var collectionsResponse = await response.Content.ReadAsStringAsync();
+            var cqr = JsonConvert.DeserializeObject<CollectionsQueryResponse>(collectionsResponse);
+            if (cqr==null)
+            {
+                throw new Exception("Error sending request to server");
+            }
+
+            if (cqr.Items.Count > 1)
+            {
+                var str = validateProducts(cqr);
+                if (!string.IsNullOrEmpty(str))
+                {
+                    throw new Exception(str);
+                }
+            }
 
             return "";
         }
 
-        private static async Task<string> GetCollectionsTokenFromService()
+        private static string validateProducts(CollectionsQueryResponse cqr)
+        {
+            var storeCollectionsItems = new ObservableCollection<CollectionsItem>(cqr.Items);
+
+            String resultString = "";
+            foreach (var d in _Durables)
+            {
+                    var durablesFound = storeCollectionsItems.Where(x => x.ProductId == d.Value.storeProduct.StoreId).ToList();
+                    if (durablesFound.Count == 0)
+                    {
+                        resultString += $"Product: {d.Value.storeProduct.StoreId} not in Store products list.\n";
+                    }
+            }
+            foreach (var d in _Consumables)
+            {
+                var consumablesFound = storeCollectionsItems.Where(x => x.ProductId == d.Value.storeProduct.StoreId).ToList();
+                if (consumablesFound.Count == 0)
+                {
+                    resultString += $"Product: {d.Value.storeProduct.StoreId} not in Store products list.\n";
+                }
+            }
+            foreach (var d in _StoreManagedConsumables)
+            {
+                var smConsumablesFound = storeCollectionsItems.Where(x => x.ProductId == d.Value.storeProduct.StoreId).ToList();
+                if (smConsumablesFound.Count == 0)
+                {
+                    resultString += $"Product: {d.Value.storeProduct.StoreId} not in Store products list.\n";
+                }
+            }
+            return resultString;
+        }
+
+        private static async Task<string> getCollectionsTokenFromService()
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
@@ -637,7 +570,7 @@ namespace MSIAPHelper
             if (response.StatusCode==System.Net.HttpStatusCode.OK)
             {
                 var tokenContent=await response.Content.ReadAsStringAsync();
-                accessTokens = JsonSerializer.Deserialize<ClientAccessTokensResponse>(tokenContent);
+                accessTokens = JsonConvert.DeserializeObject<ClientAccessTokensResponse>(tokenContent);
             }
             if (accessTokens==null)
             {
@@ -656,7 +589,7 @@ namespace MSIAPHelper
 
         private static async Task<string> getMSStoreCollectionsToken(string collectionsToken)
         {
-            var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, " ");
+            var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, UserId);
             return res;
         }
         static string ReportError(System.UInt32 hResult)
