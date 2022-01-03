@@ -95,7 +95,7 @@ namespace MSIAPHelper
 
         public static async Task<bool> InitializeStoreContext()
         {
-         
+
             Debug.WriteLine("StoreContext.GetDefault...");
             //if (_storeContext == null)
             //{
@@ -116,7 +116,7 @@ namespace MSIAPHelper
                     UserId = node2.Attributes["Id"].Value;
                     break;
                 }
-            }  
+            }
 
 
             return _storeContext != null;
@@ -498,21 +498,25 @@ namespace MSIAPHelper
 
         public static IAsyncOperation<string> GetProductsFromService()
         {
-           return getProductsFromService().AsAsyncOperation();
+            return getProductsFromService().AsAsyncOperation();
         }
         private static async Task<string> getProductsFromService()
         {
-            var CollectionsToken = await GetMSStoreCollectionsToken(); 
+            var CollectionsToken = await GetMSStoreCollectionsToken();
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
             var data = new StringContent($"{{\"UserCollectionsId\":\"{CollectionsToken}\"}}", Encoding.UTF8, "application/json");
 
-            
+
+#if LOCAL_SERVICE
             var response = await client.PostAsync(new Uri("https://localhost:5001/collections/query"), data);
-            
+#else
+            var response = await client.PostAsync(new Uri("https://microsoftstoreservicessample.azurewebsites.net/collections/query"), data);
+#endif
+
             var collectionsResponse = await response.Content.ReadAsStringAsync();
             var cqr = JsonConvert.DeserializeObject<CollectionsQueryResponse>(collectionsResponse);
-            if (cqr==null)
+            if (cqr == null)
             {
                 throw new Exception("Error sending request to server");
             }
@@ -536,11 +540,11 @@ namespace MSIAPHelper
             String resultString = "";
             foreach (var d in _Durables)
             {
-                    var durablesFound = storeCollectionsItems.Where(x => x.ProductId == d.Value.storeProduct.StoreId).ToList();
-                    if (durablesFound.Count == 0)
-                    {
-                        resultString += $"Product: {d.Value.storeProduct.StoreId} not in Store products list.\n";
-                    }
+                var durablesFound = storeCollectionsItems.Where(x => x.ProductId == d.Value.storeProduct.StoreId).ToList();
+                if (durablesFound.Count == 0)
+                {
+                    resultString += $"Product: {d.Value.storeProduct.StoreId} not in Store products list.\n";
+                }
             }
             foreach (var d in _Consumables)
             {
@@ -565,19 +569,24 @@ namespace MSIAPHelper
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
+#if LOCAL_SERVICE
             var response = await client.GetAsync(new Uri("https://localhost:5001/collections/RetrieveAccessTokens"));
-            ClientAccessTokensResponse accessTokens =null;
-            if (response.StatusCode==System.Net.HttpStatusCode.OK)
+#else
+            var response = await client.GetAsync(new Uri("https://microsoftstoreservicessample.azurewebsites.net/collections/RetrieveAccessTokens")); 
+#endif
+            ClientAccessTokensResponse accessTokens = null;
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var tokenContent=await response.Content.ReadAsStringAsync();
+                string tokenContent = await response.Content.ReadAsStringAsync();
                 accessTokens = JsonConvert.DeserializeObject<ClientAccessTokensResponse>(tokenContent);
             }
-            if (accessTokens==null)
+            if (accessTokens == null)
             {
                 return "";
-            } else
+            }
+            else
             {
-                foreach(var token in accessTokens.AccessTokens)
+                foreach (var token in accessTokens.AccessTokens)
                 {
                     if (token.Audience.Contains("collections"))
                         return token.Token;
