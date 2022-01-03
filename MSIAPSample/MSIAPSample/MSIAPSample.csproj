@@ -13,7 +13,7 @@
   <ItemGroup>
     <None Remove="InventoryPage.xaml" />
     <None Remove="NavigationWindow.xaml" />
-    <None Remove="SpendCoinsPrompt.xaml" />
+    <None Remove="SpendConsumableUnitsPrompt.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,7 +39,7 @@
     <Page Update="NavigationWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Update="SpendCoinsPrompt.xaml">
+    <Page Update="SpendConsumableUnitsPrompt.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

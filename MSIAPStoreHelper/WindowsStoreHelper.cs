@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿//#define LOCAL_SERVICE
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using MSIAPHelper.Models;
@@ -77,16 +78,15 @@ namespace MSIAPHelper
                 {
                     _StoreManagedConsumables.Add(product.StoreId, new StoreProductEx(product));
                     var result = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
-                    _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = result.BalanceRemaining;
+                    _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance.Value = result.BalanceRemaining;
                 }
                 else
                 {
                     var storeBal = await _storeContext.GetConsumableBalanceRemainingAsync(product.StoreId);
-                    if (storeBal.BalanceRemaining != _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance)
+
+                    if (storeBal.BalanceRemaining != _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance.Value)
                     {
-                        _StoreManagedConsumables.Remove(product.StoreId);
-                        _StoreManagedConsumables[product.StoreId] = new StoreProductEx(product);
-                        _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance = storeBal.BalanceRemaining;
+                        _StoreManagedConsumables[product.StoreId].storeManagedConsumableRemainingBalance.Value = storeBal.BalanceRemaining;
                     }
                 }
             }
@@ -95,7 +95,6 @@ namespace MSIAPHelper
 
         public static async Task<bool> InitializeStoreContext()
         {
-
             Debug.WriteLine("StoreContext.GetDefault...");
             //if (_storeContext == null)
             //{
@@ -275,7 +274,7 @@ namespace MSIAPHelper
             var product = GetProduct(StoreId);
             if (product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
             {
-                return fulfillConsumable(StoreId, unitsToSpend).AsAsyncOperation();
+                return spendStoreManagedConsumable(StoreId, unitsToSpend).AsAsyncOperation();
             }
             else
             {
@@ -294,7 +293,6 @@ namespace MSIAPHelper
 
                 TotalUnmangedUnitsRemaining -= unitsToFulfill;
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-
                 localSettings.Values["TotalUnits"] = TotalUnmangedUnitsRemaining;
             }
             return TotalUnmangedUnitsRemaining.ToString();
@@ -317,21 +315,22 @@ namespace MSIAPHelper
 #endif
         }
 
-        public static IAsyncOperation<string> FulfillConsumable(string StoreId, uint unitsToFulFil = 1)
+        public static IAsyncOperation<string> SpendFulfillStoreManagedConsumable(string StoreId, uint unitsToFulFil = 1)
         {
-            return fulfillConsumable(StoreId, unitsToFulFil).AsAsyncOperation();
+            return spendStoreManagedConsumable(StoreId, unitsToFulFil).AsAsyncOperation();
         }
-        private static async Task<string> fulfillConsumable(string StoreId, uint unitsToSpend)
+        private static async Task<string> spendStoreManagedConsumable(string StoreId, uint unitsToSpend)
         {
             var product = GetProduct(StoreId);
 
             Debug.Assert(product != null);
-            Debug.Assert(product.storeProduct.ProductKind != AddOnKind.Durable);
+            Debug.Assert(product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable);
 
             StoreConsumableResult? res = null;
+            CollectionsConsumeResponse ccr=new CollectionsConsumeResponse();
             if (product.storeProduct.IsInUserCollection)
             {
-                if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable || product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
+                if (product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
                 {
                     ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
                     Guid strTrackingId = Guid.NewGuid();
@@ -343,12 +342,44 @@ namespace MSIAPHelper
                     {
                         localSettings.Values[key: StoreId] = strTrackingId;
                     }
-                    uint unitsToFulfill = unitsToSpend;
-                    if (product.storeProduct.ProductKind == AddOnKind.DeveloperManagedConsumable)
+                    var UserCollectionsId = await GetMSStoreCollectionsToken();
+                    var UserPurchaseId = await GetMSStorePurchaseToken();
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
+                    var args = new Dictionary<string,string>();
+                    args.Add("UserCollectionsId", UserCollectionsId);
+                    args.Add("UserPurchaseId", UserPurchaseId);
+                    args.Add("Quantity", unitsToSpend.ToString());
+                    args.Add("ProductId", StoreId);
+                    var jsonArgs = JsonConvert.SerializeObject(args);
+                    var data = new StringContent(jsonArgs, Encoding.UTF8, "application/json");
+#if LOCAL_SERVICE
+                var response = await client.PostAsync(new Uri("https://localhost:5001/collections/consume"), data);
+#else
+                var response = await client.PostAsync(new Uri("https://microsoftstoreservicessample.azurewebsites.net/collections/consume"), data);
+#endif
+                    var collectionsResponse = await response.Content.ReadAsStringAsync();
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
-                        unitsToFulfill = 1;
+                        try
+                        {
+                            ccr = JsonConvert.DeserializeObject<CollectionsConsumeResponse>(collectionsResponse);
+                            if (ccr.ItemId == null)
+                            {
+                                throw new Exception("Not enough units, consider buying more.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.Message);
+                        }
+                    } else
+                    {
+                        throw new Exception($"Problem with consume request: Status Code: {response.StatusCode} : {response.ReasonPhrase}");
                     }
-                    res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, unitsToFulfill, strTrackingId);
+#if LOCAL_FULFILL
+                    res = await _storeContext.ReportConsumableFulfillmentAsync(StoreId, unitsToSpend, strTrackingId);
+                    
                     if (res.Status != StoreConsumableStatus.Succeeded)
                     {
                         throw new Exception(res.Status.ToString());
@@ -358,17 +389,23 @@ namespace MSIAPHelper
                         throw new Exception(res.ExtendedError.Message);
                     }
                     else
+#endif
                     {
                         localSettings.Values.Remove(StoreId);
+                        product.storeManagedConsumableRemainingBalance.Value = Convert.ToUInt32(ccr.NewQuantity);
                     }
                 }
             }
 
             string result = "Fulfilment error";
-            if (product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
+#if LOCAL_FULFILL
+if (product.storeProduct.ProductKind == AddOnKind.StoreManagedConsumable)
                 result = (res != null) ? $"Consumable Balance remaining {res.BalanceRemaining}" : result;
             else
                 result = (res != null) ? $"Consumable status: {res.Status}" : result;
+#else
+            result = (ccr.ItemId != null) ? $"Consumable Balance remaining {ccr.NewQuantity}" : result;
+#endif
 
             return $"{result}";
 
@@ -417,11 +454,6 @@ namespace MSIAPHelper
         }
         private static async Task<string> purchase(string StoreId)
         {
-            if (_storeContext == null)
-            {
-                throw (new Exception("Store context not initialized"));
-            }
-
             InitializeStoreContext();
 
             var result = await _storeContext.RequestPurchaseAsync(StoreId);
@@ -478,12 +510,21 @@ namespace MSIAPHelper
             return getMSStorePurchaseToken(purchaseToken).AsAsyncOperation();
         }
 
+        public static IAsyncOperation<string> GetMSStorePurchaseToken()
+        {
+            return getMSStorePurchaseToken().AsAsyncOperation();
+        }
         private static async Task<string> getMSStorePurchaseToken(string purchaseToken)
         {
             var res = await _storeContext.GetCustomerPurchaseIdAsync(purchaseToken, "abcd");
             return res;
         }
-
+        private static async Task<string> getMSStorePurchaseToken()
+        {
+            var purchaseToken = await getPurchaseTokenFromService();
+            var res = await getMSStorePurchaseToken(purchaseToken);
+            return res;
+        }
         public static IAsyncOperation<string> GetMSStoreCollectionsToken(string collectionsToken)
         {
             return getMSStoreCollectionsToken(collectionsToken).AsAsyncOperation();
@@ -496,41 +537,46 @@ namespace MSIAPHelper
             return res;
         }
 
-        public static IAsyncOperation<string> GetProductsFromService()
+        public static IAsyncOperation<CollectionsQueryResponse> GetProductsFromService()
         {
             return getProductsFromService().AsAsyncOperation();
         }
-        private static async Task<string> getProductsFromService()
+        private static async Task<CollectionsQueryResponse> getProductsFromService()
         {
             var CollectionsToken = await GetMSStoreCollectionsToken();
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
             var data = new StringContent($"{{\"UserCollectionsId\":\"{CollectionsToken}\"}}", Encoding.UTF8, "application/json");
 
-
 #if LOCAL_SERVICE
-            var response = await client.PostAsync(new Uri("https://localhost:5001/collections/query"), data);
+            HttpResponseMessage response;
+            try
+            {
+                response = await client.PostAsync(new Uri("https://localhost:5001/collections/query"), data);
+                if (response.StatusCode!= System.Net.HttpStatusCode.OK)
+                {
+                    throw new Exception($"Query error: {response.StatusCode} : {response.ReasonPhrase}");
+                }
+            } catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
 #else
             var response = await client.PostAsync(new Uri("https://microsoftstoreservicessample.azurewebsites.net/collections/query"), data);
 #endif
 
-            var collectionsResponse = await response.Content.ReadAsStringAsync();
-            var cqr = JsonConvert.DeserializeObject<CollectionsQueryResponse>(collectionsResponse);
-            if (cqr == null)
+            string collectionsResponse = "";
+            CollectionsQueryResponse collectionsQueryResponse = new CollectionsQueryResponse();
+            try
             {
-                throw new Exception("Error sending request to server");
+                collectionsResponse = await response.Content.ReadAsStringAsync();
+                collectionsQueryResponse = JsonConvert.DeserializeObject<CollectionsQueryResponse>(collectionsResponse);
             }
-
-            if (cqr.Items.Count > 1)
+            catch (Exception ex)
             {
-                var str = validateProducts(cqr);
-                if (!string.IsNullOrEmpty(str))
-                {
-                    throw new Exception(str);
-                }
+                throw new Exception(ex.Message);
             }
-
-            return "";
+            return collectionsQueryResponse;
         }
 
         private static string validateProducts(CollectionsQueryResponse cqr)
@@ -596,6 +642,37 @@ namespace MSIAPHelper
 
         }
 
+        private static async Task<string> getPurchaseTokenFromService()
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(UserId);
+#if LOCAL_SERVICE
+            var response = await client.GetAsync(new Uri("https://localhost:5001/collections/RetrieveAccessTokens"));
+#else
+            var response = await client.GetAsync(new Uri("https://microsoftstoreservicessample.azurewebsites.net/collections/RetrieveAccessTokens"));
+#endif
+            ClientAccessTokensResponse accessTokens = null;
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string tokenContent = await response.Content.ReadAsStringAsync();
+                accessTokens = JsonConvert.DeserializeObject<ClientAccessTokensResponse>(tokenContent);
+            }
+            if (accessTokens == null)
+            {
+                return "";
+            }
+            else
+            {
+                foreach (var token in accessTokens.AccessTokens)
+                {
+                    if (token.Audience.Contains("purchase"))
+                        return token.Token;
+                }
+                return "";
+            }
+
+        }
+
         private static async Task<string> getMSStoreCollectionsToken(string collectionsToken)
         {
             var res = await _storeContext.GetCustomerCollectionsIdAsync(collectionsToken, UserId);
@@ -629,14 +706,17 @@ namespace MSIAPHelper
             _storeProduct = product;
             InUserCollectionEx = new IsInUserCollectionEx(product.IsInUserCollection);
             SubscriptionIsInUserCollection = new IsInUserCollectionEx(product.IsInUserCollection);
+            storeManagedConsumableRemainingBalance = new StoreManagedConsumableBalance();
         }
 
         public DeveloperManagedConsumable developerManagedConsumable;
         [DefaultValue(false)]
         public IsInUserCollectionEx InUserCollectionEx { get; set; }
+        //private CollectionsItem _collectionsItem { get; set }
+        //private CollectionsItem CollectionsItem { get { return _collectionsItem; } set { _collectionsItem = value; } }
         private StoreProduct _storeProduct { get; set; }
         public StoreProduct storeProduct { get { return _storeProduct; } set { _storeProduct = value; } }
-        public uint storeManagedConsumableRemainingBalance { get; set; }
+        public StoreManagedConsumableBalance storeManagedConsumableRemainingBalance { get; set; }
         public IsInUserCollectionEx SubscriptionIsInUserCollection { get; set; }
         public string ExpirationDate { get; internal set; }
 
@@ -696,7 +776,15 @@ namespace MSIAPHelper
             set => SetProperty(ref _inUserCollection, value);
         }
     }
-
+    public class StoreManagedConsumableBalance : ObservableObject
+    {
+        private uint _balance;
+        public uint Value
+        {
+            get => _balance;
+            set => SetProperty(ref _balance, value);
+        }
+    }
     public static partial class Extensions
     {
         /// <summary>

@@ -109,10 +109,11 @@
                 </GridView.ItemTemplate>
             </GridView>
 
-            <GridView RelativePanel.Below="gvSubscriptions"  Grid.Row="1" Grid.Column="0" Margin="0,5,0,5"
+                <GridView x:Name="gvStoreManagedConsumables" RelativePanel.Below="gvSubscriptions"  Grid.Row="1" Grid.Column="0" Margin="0,5,0,5"
                       Header="Store Managed Consumables"
                       Background="AliceBlue" 
-                      x:Name="gvStoreManagedConsumables">
+                      IsItemClickEnabled="True"
+                      ItemClick="gvStoreManagedConsumables_ItemClick">
                 <!--ItemsSource="{x:Bind AddOnsViewPage.StoreManagedConsumables,Mode=OneWay}"  >-->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
@@ -128,10 +129,10 @@
                             </Grid.RowDefinitions>
                             <Image Grid.Row="0"  Source="{x:Bind GetImageUri()}" Height="100" MinWidth="100" Margin="10"  ui:Effects.Shadow="{StaticResource CommonShadow}"/>
                             <TextBlock Grid.Row="1" FontFamily="Segoe UI" FontStyle="Italic" FontWeight="SemiBold"
-                                       HorizontalTextAlignment="Center" Text="{x:Bind storeProduct.Title}" Margin="30,0,30,0"/>
+                                       HorizontalTextAlignment="Center" Text="{x:Bind storeProduct.InAppOfferToken}" Margin="30,0,30,0"/>
                             <TextBlock Grid.Row="2" FontFamily="Segoe UI" 
                                        HorizontalTextAlignment="Center" 
-                                       Text="{Binding storeManagedConsumableRemainingBalance,Converter={StaticResource StringFormatConverter},ConverterParameter='Gold bars remaining: {0}'}" Margin="20,0,20,10"/>
+                                       Text="{Binding storeManagedConsumableRemainingBalance.Value,Converter={StaticResource StringFormatConverter},ConverterParameter='Gold bars remaining: {0}'}" Margin="20,0,20,10"/>
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>

@@ -24,7 +24,6 @@ namespace MSIAPSample
             NavigationCacheMode = NavigationCacheMode.Enabled;
         }
 
-
         public AddOnsView InventoryAddOnsView { get => AddOnsView.Instance; }
 
         private static bool bInitialized = false;
@@ -47,25 +46,22 @@ namespace MSIAPSample
 
         private void btnPurchaseNav_Click(object sender, RoutedEventArgs e)
         {
-            var res = WindowsStoreHelper.GetProductsFromService();
-            
             var navigation = (Application.Current as App).Navigation;
             var purchaseItem = navigation.GetNavigationViewItems(typeof(MSIAPSample.PurchasePage)).First();
             navigation.SetCurrentNavigationViewItem(purchaseItem);
-            
         }
 
-        private async Task<uint> SpendConsumablesPrompt(uint initAmt)
+        private async Task<uint> SpendConsumablesPrompt(uint initAmt, string consumableType)
         {
             ContentDialog dialog = new ContentDialog();
-            dialog.Title = "How many coins would you like to spend?";
+            dialog.Title = $"How many {consumableType}s would you like to spend?";
             dialog.PrimaryButtonText = "Spend";
             dialog.CloseButtonText = "Cancel";
             dialog.DefaultButton = ContentDialogButton.Primary;
-            dialog.Content = new SpendCoinsPrompt() { coinsToSpend = initAmt };
+            dialog.Content = new SpendConsumableUnitsPrompt() { UnitsToSpend = initAmt };
             dialog.XamlRoot = XamlRoot;
             var result = await dialog.ShowAsync();
-            var res = (dialog.Content as SpendCoinsPrompt).coinsToSpend;
+            var res = (dialog.Content as SpendConsumableUnitsPrompt).UnitsToSpend;
             if (result == ContentDialogResult.Primary)
                 return res;
             else
@@ -75,7 +71,7 @@ namespace MSIAPSample
         private async void gridUnmanagedConsumables_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             // Prompt for number of coins to spend.
-            var coinsToSpend = await SpendConsumablesPrompt(10);
+            var coinsToSpend = await SpendConsumablesPrompt(10, "Coins");
             if (coinsToSpend == 0)
                 return;
             
@@ -95,6 +91,23 @@ namespace MSIAPSample
                 }
             }
 
+        }
+
+        private async void gvStoreManagedConsumables_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            var sp = (StoreProductEx)e.ClickedItem;
+            
+            // Prompt for number of coins to spend.
+            var goldToSpend = await SpendConsumablesPrompt(10, "Gold bar");
+            if (goldToSpend == 0)
+                return;
+            try
+            {
+                await WindowsStoreHelper.SpendFulfillStoreManagedConsumable(sp.storeProduct.StoreId, goldToSpend);
+            } catch (Exception ex)
+            {
+                UIHelpers.ShowError(ex.Message);
+            }
         }
     }
 }

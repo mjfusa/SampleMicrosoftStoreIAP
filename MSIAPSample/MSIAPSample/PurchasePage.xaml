@@ -126,7 +126,7 @@
                                        MaxWidth="240" />
                             <TextBlock Grid.Row="4" FontFamily="Segoe UI" 
                                        HorizontalTextAlignment="Center" 
-                                       Text="{Binding storeManagedConsumableRemainingBalance,Converter={StaticResource StringFormatConverter},ConverterParameter='Gold remaining: {0}'}" Margin="20,10,20,10" MinWidth="180"/>
+                                       Text="{Binding storeManagedConsumableRemainingBalance.Value,Converter={StaticResource StringFormatConverter},ConverterParameter='Gold remaining: {0}'}" Margin="20,10,20,10" MinWidth="180"/>
                         </Grid>
                     </DataTemplate>
                 </GridView.ItemTemplate>

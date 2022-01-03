@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="MSIAPSample.SpendCoinsPrompt"
+    x:Class="MSIAPSample.SpendConsumableUnitsPrompt"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:MSIAPSample"
@@ -10,8 +10,8 @@
 
     <Grid>
     <NumberBox x:Name="nbCoinsToSpend"
-    Header="Coins"
-    Value="{x:Bind coinsToSpend,Mode=TwoWay}"
+    Header="{x:Bind UnitsName}"
+    Value="{x:Bind UnitsToSpend,Mode=TwoWay}"
     SpinButtonPlacementMode="Inline"
     SmallChange="10"
     LargeChange="100" />
