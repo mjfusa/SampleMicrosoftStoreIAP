@@ -60,9 +60,6 @@ namespace MSIAPSample.Views
 
             return true;
         }
-    
-
-
     public async Task<bool> UpdateStoreManagedConsumables()
         {
             var sManagedConsumables = await WindowsStoreHelper.GetStoreManagedConsumablesAsync();
