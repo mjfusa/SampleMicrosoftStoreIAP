@@ -114,7 +114,7 @@
                       Background="AliceBlue" 
                       IsItemClickEnabled="True"
                       ItemClick="gvStoreManagedConsumables_ItemClick">
-                <!--ItemsSource="{x:Bind AddOnsViewPage.StoreManagedConsumables,Mode=OneWay}"  >-->
+                    <!--ItemsSource="{Binding InventoryAddOnsView.AcvOwnedStoreManagedConsumables,Mode=OneWay}"  >-->
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="msiaphelper:StoreProductEx">
                         <Grid Width="Auto" Height="Auto"  Background="#FFF7F0" CornerRadius="5" BorderThickness="1" BorderBrush="Black" MinWidth="220"

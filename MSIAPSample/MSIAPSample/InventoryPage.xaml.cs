@@ -40,7 +40,6 @@ namespace MSIAPSample
 
             lvDurables.ItemsSource = aov.AcvOwnedDurables;
             gvSubscriptions.ItemsSource = aov.AcvOwnedSubscriptions;
-            //gvUnmanagedConsumables.ItemsSource = aov.Consumables;
             gvStoreManagedConsumables.ItemsSource = aov.AcvOwnedStoreManagedConsumables;
         }
 
@@ -71,7 +70,7 @@ namespace MSIAPSample
         private async void gridUnmanagedConsumables_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             // Prompt for number of coins to spend.
-            var coinsToSpend = await SpendConsumablesPrompt(10, "Coins");
+            var coinsToSpend = await SpendConsumablesPrompt(10, "Coin");
             if (coinsToSpend == 0)
                 return;
             
@@ -104,7 +103,11 @@ namespace MSIAPSample
             try
             {
                 await WindowsStoreHelper.SpendFulfillStoreManagedConsumable(sp.storeProduct.StoreId, goldToSpend);
-            } catch (Exception ex)
+                var aov = AddOnsView.Instance;
+                await aov.UpdateStoreManagedConsumables();
+                gvStoreManagedConsumables.ItemsSource = aov.AcvOwnedStoreManagedConsumables;
+            }
+            catch (Exception ex)
             {
                 UIHelpers.ShowError(ex.Message);
             }
