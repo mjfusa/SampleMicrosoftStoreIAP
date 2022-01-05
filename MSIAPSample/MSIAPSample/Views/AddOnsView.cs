@@ -1,11 +1,8 @@
 ﻿using CommunityToolkit.WinUI.UI;
 using Microsoft.StoreServices;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
 using MSIAPHelper;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MSIAPSample.Views
@@ -72,7 +69,7 @@ namespace MSIAPSample.Views
 
             AcvOwnedStoreManagedConsumables = new AdvancedCollectionView(storeManagedConsumables, true);
             AcvOwnedStoreManagedConsumables.Filter = (x => ((StoreProductEx)x).storeManagedConsumableRemainingBalance.Value > 0);
-            
+
             return true;
         }
         public async Task<bool> UpdateConsumables()
@@ -101,11 +98,12 @@ namespace MSIAPSample.Views
                 {
                     if (!Subscriptions.Contains(d.Value))
                     {
-                        var bRes = await WindowsStoreHelper.IsSubscriptionIsInUserCollection(d.Value.storeProduct.StoreId);
+                        var bRes = await WindowsStoreHelper.IsSubscriptionInUserCollection(d.Value.storeProduct.StoreId);
                         d.Value.SubscriptionIsInUserCollection.Value = bRes;
                         Subscriptions.Add(d.Value);
                     }
-                } else
+                }
+                else
                 {
                     if (!Durables.Contains(d.Value))
                     {

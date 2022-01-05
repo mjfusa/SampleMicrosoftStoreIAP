@@ -6,7 +6,6 @@ using MSIAPSample.Views;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Windows.Foundation;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -73,7 +72,7 @@ namespace MSIAPSample
             var coinsToSpend = await SpendConsumablesPrompt(10, "Coin");
             if (coinsToSpend == 0)
                 return;
-            
+
             // Spend Coins
             var aov = AddOnsView.Instance;
             if (aov.Consumables.Count > 0)
@@ -82,7 +81,7 @@ namespace MSIAPSample
                 {
                     await WindowsStoreHelper.SpendConsumable(aov.Consumables[0].storeProduct.StoreId, coinsToSpend);
                     var res = await WindowsStoreHelper.GetTotalUnmangedConsumableBalanceRemainingAsync();
-                    InventoryAddOnsView.TotalUnmanagedUnits.Total=res.ToString();
+                    InventoryAddOnsView.TotalUnmanagedUnits.Total = res.ToString();
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +94,7 @@ namespace MSIAPSample
         private async void gvStoreManagedConsumables_ItemClick(object sender, ItemClickEventArgs e)
         {
             var sp = (StoreProductEx)e.ClickedItem;
-            
+
             // Prompt for number of coins to spend.
             var goldToSpend = await SpendConsumablesPrompt(10, "Gold bar");
             if (goldToSpend == 0)
@@ -103,9 +102,12 @@ namespace MSIAPSample
             try
             {
                 await WindowsStoreHelper.SpendFulfillStoreManagedConsumable(sp.storeProduct.StoreId, goldToSpend);
-                var aov = AddOnsView.Instance;
-                await aov.UpdateStoreManagedConsumables();
-                gvStoreManagedConsumables.ItemsSource = aov.AcvOwnedStoreManagedConsumables;
+                if (sp.storeManagedConsumableRemainingBalance.Value == 0)
+                {
+                    var aov = AddOnsView.Instance;
+                    await aov.UpdateStoreManagedConsumables();
+                    gvStoreManagedConsumables.ItemsSource = aov.AcvOwnedStoreManagedConsumables;
+                }
             }
             catch (Exception ex)
             {

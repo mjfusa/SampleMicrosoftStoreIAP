@@ -22,7 +22,7 @@ namespace Microsoft.StoreServices
         /// marked with virtual so it can be overridden to define a key value.
         /// </summary>
         [JsonProperty("beneficiary")] public virtual CollectionsRequestBeneficiary RequestBeneficiary { get; set; }
-        
+
         /// <summary>
         /// ProductId / StoreId of the consumable product.
         /// </summary>

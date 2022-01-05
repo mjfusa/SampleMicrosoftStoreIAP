@@ -1,11 +1,5 @@
-﻿using CommunityToolkit.WinUI.UI;
-using MSIAPHelper;
-using System;
-using System.Collections.Generic;
+﻿using MSIAPHelper;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MSIAPSample.Views
 {

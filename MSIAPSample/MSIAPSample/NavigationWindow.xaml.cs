@@ -1,18 +1,8 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -47,7 +37,7 @@ namespace MSIAPSample
             }
 
             var windowClassname = item.Tag.ToString();
-            
+
             contentFrame.Navigate(Type.GetType(windowClassname), item.Content);
             NavigationView.Header = item.Content;
             NavigationView.SelectedItem = item;
@@ -100,7 +90,7 @@ namespace MSIAPSample
 
             return result;
         }
-        
+
         public List<NavigationViewItem> GetNavigationViewItems(Type type)
         {
             return GetNavigationViewItems().Where(i => i.Tag.ToString() == type.FullName).ToList();
@@ -112,7 +102,7 @@ namespace MSIAPSample
 
         private void NavigationView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
-            var items= new List<NavigationViewItem>();
+            var items = new List<NavigationViewItem>();
             foreach (var b in contentFrame.BackStack)
             {
                 var c = b.SourcePageType;
@@ -122,7 +112,8 @@ namespace MSIAPSample
             if (contentFrame.CanGoBack)
             {
                 contentFrame.GoBack();
-                if (items.Count > 0) { 
+                if (items.Count > 0)
+                {
                     SetCurrentNavigationViewItem(items[items.Count - 1]);
                     if (items.Count == 1)
                     {
@@ -131,8 +122,8 @@ namespace MSIAPSample
                     }
                 }
             }
-            
-            
+
+
         }
     }
 

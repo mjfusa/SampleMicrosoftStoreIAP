@@ -27,16 +27,21 @@ namespace MSIAPSample
             lvUnmanagedConsumablesMenuFlyout = Resources["lvUnmanagedConsumablesMenuFlyout"] as MenuFlyout;
         }
 
-    private async void Button_Subs_Click(object sender, RoutedEventArgs e)
+        private async void Button_Subs_Click(object sender, RoutedEventArgs e)
         {
+#if USE_LOCAL
             var res = await WindowsStoreHelper.GetMSStorePurchaseToken(txtPurchaseToken.Text);
+#else
+            var res = await WindowsStoreHelper.GetMSStorePurchaseToken();
+#endif
+
             txtMSIDPurchaseToken.Text = res;
         }
 
         public UnmanagedUnitsRemaining TotalUnmanagedUnits = new UnmanagedUnitsRemaining();
         public Status status = new Status();
         MenuFlyout lvUnmanagedConsumablesMenuFlyout;
-        
+
         private async void Button_GetStoreIdCollections_Click(object sender, RoutedEventArgs e)
         {
 #if USE_LOCAL
@@ -80,20 +85,20 @@ namespace MSIAPSample
                         UIHelpers.ShowError(res);
                     }
                 });
-            var cancelCommand = new UICommand("Cancel", cmd => { return; });
+                var cancelCommand = new UICommand("Cancel", cmd => { return; });
 
-            MessageDialog md = new MessageDialog($"{sp.storeProduct.ProductKind} Purchase", $"Purchase {sp.storeProduct.Title}");
-            md.Options = MessageDialogOptions.None;
-            md.Commands.Add(purchaseCommand);
-            md.Commands.Add(cancelCommand);
-            IInitializeWithWindow initWindow = ((object)md).As<IInitializeWithWindow>();
-            var hwnd = (long)System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
-            initWindow.Initialize(hwnd);
-            var res1 = await md.ShowAsync();
-            if (res1.Id == null)
-            {
-                return;
-            }
+                MessageDialog md = new MessageDialog($"{sp.storeProduct.ProductKind} Purchase", $"Purchase {sp.storeProduct.Title}");
+                md.Options = MessageDialogOptions.None;
+                md.Commands.Add(purchaseCommand);
+                md.Commands.Add(cancelCommand);
+                IInitializeWithWindow initWindow = ((object)md).As<IInitializeWithWindow>();
+                var hwnd = (long)System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle;
+                initWindow.Initialize(hwnd);
+                var res1 = await md.ShowAsync();
+                if (res1.Id == null)
+                {
+                    return;
+                }
 
             }
             catch (Exception ex)
@@ -152,9 +157,10 @@ namespace MSIAPSample
         public string Total
         {
             get => _total;
-            set {
-            _total= value;
-                TotalFormatted =value;    
+            set
+            {
+                _total = value;
+                TotalFormatted = value;
             }
         }
         public string TotalFormatted
